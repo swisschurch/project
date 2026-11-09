@@ -179,7 +179,7 @@ dialog h3{margin:0 0 14px}
 form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);margin-bottom:10px}
 form input:not([type=checkbox]):not([type=file]),form select,form textarea{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);font-size:14px;color:var(--ink);width:100%}
 textarea{min-height:70px;resize:vertical}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
 label.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:13px;margin:0}
 .rel{max-height:160px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .actions{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
@@ -603,8 +603,8 @@ function showScreen(s){
     :`
       <h2>${tr('signupTitle')}</h2>
       <form id="gform" data-mode="signup">
-        <label>${tr('loginId')} <small>${tr('idRule')}</small><input name="id" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
-        <div class="row2"><label>${tr('password')} <small>${tr('pwRule')}</small><input name="pw" type="password" autocomplete="new-password" required></label>
+        <label><span>${tr('loginId')} <small>${tr('idRule')}</small></span><input name="id" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+        <div class="row2"><label><span>${tr('password')} <small>${tr('pwRule')}</small></span><input name="pw" type="password" autocomplete="new-password" required></label>
         <label>${tr('password2')}<input name="pw2" type="password" autocomplete="new-password" required></label></div>
         <div class="row2"><label>${tr('yourName')}<input name="name" required maxlength="50"></label><label>${tr('yourDept')}${deptSel}</label></div>
         ${gateErr?`<p class="g-err">${esc(gateErr)}</p>`:''}
@@ -981,7 +981,7 @@ function openSettings(){
      <div class="mb"><button type="button" data-act="logout">${tr('logout')}</button></div></div>
    <details class="sub"><summary>${tr('changePw')}</summary>
      <form id="pwform" style="margin-top:8px"><div class="row2"><label>${tr('curPw')}<input type="password" name="cur" autocomplete="current-password" required></label>
-     <label>${tr('newPw')} <small>${tr('pwRule')}</small><input type="password" name="nw" autocomplete="new-password" required></label></div>
+     <label><span>${tr('newPw')} <small>${tr('pwRule')}</small></span><input type="password" name="nw" autocomplete="new-password" required></label></div>
      <p class="g-err" id="pwerr" hidden></p><div class="actions" style="margin-top:0"><span class="grow"></span><button class="primary">${tr('save')}</button></div></form>
    </details>
    <hr class="hr">
