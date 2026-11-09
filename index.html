@@ -1,0 +1,1086 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Swiss Church 업무 정리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f5f1;--panel:#fff;--ink:#1d2330;--muted:#6b7280;--line:#e5e3dc;--accent:#2f4b7c;--accent-ink:#fff;--gold:#b8860b;--soft:#f0eee8;--late:#c0392b;
+--todo:#8a94a6;--doing:#2563eb;--done:#16a34a;--rej:#dc2626;--later:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--panel:#1c2028;--ink:#e8eaee;--muted:#9aa3b2;--line:#2c323d;--accent:#7aa2e3;--accent-ink:#0f1420;--soft:#232833;--gold:#e0b33a}}
+:root[data-theme="dark"]{--bg:#14171d;--panel:#1c2028;--ink:#e8eaee;--muted:#9aa3b2;--line:#2c323d;--accent:#7aa2e3;--accent-ink:#0f1420;--soft:#232833;--gold:#e0b33a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 'Noto Sans KR',system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 12px}
+button:hover{border-color:var(--muted)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.danger{color:var(--rej)}
+header{display:flex;align-items:center;gap:16px;padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{font-weight:700;font-size:16px}
+.month-nav{display:flex;align-items:center;gap:6px}
+.month-nav span{font-weight:700;min-width:96px;text-align:center}
+.month-nav button{padding:2px 10px}
+#slogan{flex:1;min-width:220px;cursor:pointer;padding:8px 14px;border-radius:10px;background:var(--soft);display:flex;gap:10px;align-items:baseline}
+.sl-label{font-size:12px;color:var(--gold);font-weight:700;white-space:nowrap}
+.sl-text{font-weight:700;font-size:16px}
+.sl-empty{color:var(--muted)}
+.sync{font-size:12px;color:var(--muted)}
+.sync.ok{color:var(--done)}.sync.err{color:var(--rej)}.sync.warn{color:var(--later)}
+#history[hidden]{display:none}
+#history{display:flex;gap:8px;padding:10px 20px;overflow-x:auto;align-items:center;border-bottom:1px solid var(--line)}
+.h-title{font-size:12px;color:var(--muted);white-space:nowrap}
+.h-chip{display:flex;flex-direction:column;align-items:flex-start;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis;padding:4px 12px;font-size:13px;flex-shrink:0}
+.h-chip small{font-size:11px;color:var(--muted)}
+.h-chip.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.m-btn{border:0;background:none;font-weight:700;padding:4px 8px;white-space:nowrap}
+.m-btn:hover{background:var(--soft)}
+.m-btn i{font-style:normal;color:var(--muted);font-size:11px;margin-left:4px}
+.m-btn.on{background:var(--soft)}
+.past-h{font-size:12px;color:var(--later);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.past-h button{font-size:12px;padding:2px 8px}
+.past{margin-left:auto;font-size:12px;color:var(--later);white-space:nowrap}
+.past button{font-size:12px;padding:2px 8px;margin-left:6px}
+.layout{display:grid;grid-template-columns:180px 1fr;gap:20px;padding:20px;max-width:1600px;margin:0 auto}
+main{min-width:0}
+aside{display:flex;flex-direction:column;gap:2px}
+.d-group{font-size:11px;color:var(--muted);margin:12px 8px 4px;font-weight:700}
+.d-item{display:flex;align-items:center;gap:8px;border:0;background:none;text-align:left;padding:6px 8px}
+.d-item i{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.d-item span{margin-left:auto;font-size:12px;color:var(--muted)}
+.d-item.on{background:var(--panel);box-shadow:0 0 0 1px var(--line);font-weight:700}
+#tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+#tabs button{border:0;background:none;border-radius:0;padding:8px 14px;border-bottom:2px solid transparent;color:var(--muted)}
+#tabs button.on{border-color:var(--accent);color:var(--ink);font-weight:700}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.toolbar input[type=search]{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);min-width:160px}
+.toolbar label{display:flex;align-items:center;gap:4px;font-size:13px}
+.grow{flex:1}
+.sec{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.sec h3{margin:0;font-size:15px}
+.sec-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.pinned{border-color:color-mix(in srgb,var(--gold) 55%,var(--line))}
+.tstar{border:0;background:none;padding:0 2px;font-size:16px;line-height:1;color:var(--line);flex-shrink:0;border-radius:4px}
+.tstar:hover{color:var(--gold);border:0}
+.tstar.on{color:var(--gold)}
+.pstar{font-size:18px}
+.star-box{font-weight:700}
+.star-box .sb{color:var(--gold);width:auto;font-size:14px}
+.star-box.on{background:color-mix(in srgb,var(--gold) 14%,var(--panel));box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 50%,var(--line))}
+.d-sep{height:1px;background:var(--line);margin:6px 8px}
+.lang-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;border-radius:0;padding:6px 14px}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.sh{margin:0 0 10px;font-size:14px}
+.note-s{font-size:12px;color:var(--muted);margin:6px 0 0 24px}
+.star-hint{font-size:13px;color:var(--muted);margin:0 0 12px}
+@media (max-width:760px){.d-sep{display:none}}
+details.sec>summary{cursor:pointer;display:flex;align-items:center;gap:8px;list-style:none}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::before{content:'▸';color:var(--muted);transition:transform .15s}
+details[open].sec>summary::before{transform:rotate(90deg)}
+details[open].sec>summary{margin-bottom:6px}
+.badge{font-size:12px;background:var(--soft);padding:0 8px;border-radius:10px;color:var(--muted)}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chips button{padding:2px 10px;font-size:12px;border-radius:20px}
+.chips button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.grp-h{font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 2px;display:flex;align-items:center;gap:6px}
+.grp-h i{width:8px;height:8px;border-radius:50%}
+.task{display:flex;align-items:center;gap:10px;padding:8px 4px;border-top:1px solid var(--line)}
+.task .bar{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0}
+.t-body{flex:1;min-width:0;cursor:pointer}
+.t-title{font-weight:500}
+.s-done .t-title{text-decoration:line-through;color:var(--muted)}
+.s-rej .t-title{color:var(--muted)}
+.t-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:2px}
+.dtag{padding:0 6px;border-radius:4px;background:var(--soft);color:var(--muted);font-weight:500;font-size:12px;white-space:nowrap}
+.dtag.off{background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--gold)}
+.ptag{padding:0 6px;border-radius:4px;border:1px solid color-mix(in srgb,var(--c) 45%,transparent);color:var(--c);font-weight:500;font-size:12px;white-space:nowrap}
+.pboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
+@media (max-width:1180px){.pboard{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.pboard{grid-template-columns:1fr}}
+.proj{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:12px;padding:14px 14px;min-width:0;display:flex;flex-direction:column}
+.proj .fill{flex:1;min-height:10px}
+.proj .task{gap:6px}
+.proj select.st{max-width:108px}
+.proj.none{border-top-style:dashed;border-top-color:var(--muted)}
+.proj-h{display:flex;align-items:center;gap:6px}
+.proj-h h3{margin:0;font-size:16px;flex:1;min-width:0}
+.proj-h .grow{flex:1}
+.proj-title{margin:10px 0 0;font-size:17px;line-height:1.35;cursor:pointer;border-radius:6px}
+.proj-title.u{margin:0}
+.proj-title:hover{color:var(--accent)}
+.proj-title i{font-style:normal;font-size:11px;color:var(--muted);margin-left:6px;vertical-align:2px}
+.proj .sub-h{margin-top:12px}
+.proj-h button,.proj-h select{flex-shrink:0}
+.proj-desc{margin:4px 0 0;color:var(--muted);font-size:13px}
+.proj-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:8px 0 6px}
+.proj-meta .prog{display:inline-block;width:120px;margin:0}
+button.mini{padding:1px 8px;font-size:12px}
+button.mini:disabled{opacity:.35;cursor:default}
+select.prio{border:0;border-radius:20px;padding:2px 8px;font-size:12px;font-weight:700;color:#fff}
+select.prio option{color:var(--ink);background:var(--panel)}
+.pr-urgent{background:#dc2626}.pr-high{background:#ea7a1a}.pr-mid{background:#5b7bb0}.pr-low{background:#9aa3b2}
+.sub-h{font-size:13px;font-weight:700;color:var(--muted);margin:10px 0 2px}
+details.sub>summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);padding:8px 0 2px;list-style:none}
+details.sub>summary::-webkit-details-marker{display:none}
+details.sub>summary::before{content:'▸ '}
+details[open].sub>summary::before{content:'▾ '}
+.addline{border:1px dashed var(--line);background:none;width:100%;margin-top:0;color:var(--muted);font-size:13px}
+.late{color:var(--late);font-weight:700}
+.note{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.star{color:var(--gold);margin-right:4px}
+select.st{border:1px solid var(--line);border-radius:20px;padding:3px 8px;font-size:12px;background:var(--panel);font-weight:500}
+select.st.s-todo{color:var(--todo)}select.st.s-doing{color:var(--doing);border-color:var(--doing)}select.st.s-done{color:var(--done)}select.st.s-rej{color:var(--rej)}select.st.s-later{color:var(--later)}
+.empty{color:var(--muted);font-size:13px;margin:6px 0}
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--line);gap:1px}
+.cal .wd{background:var(--soft);text-align:center;font-size:12px;padding:6px;color:var(--muted);font-weight:700}
+.cal .wd:first-child{color:var(--rej)}
+.day{background:var(--panel);min-height:110px;padding:4px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.day:hover{background:color-mix(in srgb,var(--accent) 4%,var(--panel))}
+.day.blank{background:var(--soft);cursor:default}
+.dn{font-size:12px;font-weight:700;padding:0 6px;align-self:flex-start}
+.day.sun .dn{color:var(--rej)}
+.day.today .dn{background:var(--accent);color:var(--accent-ink);border-radius:10px}
+.ci{--c:var(--muted);font-size:11px;padding:1px 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:color-mix(in srgb,var(--c) 16%,transparent);border-left:3px solid var(--c)}
+.ci.off{background:color-mix(in srgb,var(--gold) 24%,transparent);border-left-color:var(--gold);font-weight:700}
+.ci.tk{background:none;border-left:0;border-bottom:2px solid var(--c);border-radius:0;color:var(--muted)}
+.ci.hid{display:none}
+.day.expanded .ci.hid{display:block}.day.expanded .more{display:none}
+.more{font-size:11px;color:var(--muted);padding-left:4px}
+.agenda{margin-top:16px}
+.ag{display:flex;gap:12px;padding:8px 4px;border-top:1px solid var(--line);cursor:pointer;align-items:center}
+.ag b{min-width:64px;font-size:13px}
+/* projects */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.pcard{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:12px;padding:14px}
+.pc-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pc-h b{font-size:15px}
+.pc-h button{font-size:12px;padding:2px 8px}
+.pcard p{margin:4px 0 8px;color:var(--muted);font-size:13px}
+.ptags{display:flex;gap:4px;flex-wrap:wrap}
+.prog{height:6px;background:var(--soft);border-radius:3px;overflow:hidden;margin:10px 0 2px}
+.prog i{display:block;height:100%;background:var(--c)}
+.pcard small{color:var(--muted)}
+.pcard ul{list-style:none;padding:0;margin:10px 0}
+.pcard li{display:flex;gap:8px;align-items:center;padding:5px 0;border-top:1px solid var(--line);font-size:13px;cursor:pointer}
+.pcard li em{margin-left:auto;font-style:normal;font-size:11px;color:var(--muted);white-space:nowrap}
+.pill{font-size:11px;padding:0 6px;border-radius:10px;white-space:nowrap;color:#fff;flex-shrink:0}
+.pill.s-todo{background:var(--todo)}.pill.s-doing{background:var(--doing)}.pill.s-done{background:var(--done)}.pill.s-rej{background:var(--rej)}.pill.s-later{background:var(--later)}
+/* dialog */
+dialog{border:0;border-radius:14px;padding:20px;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 40px);background:var(--panel);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(15,20,30,.45)}
+dialog h3{margin:0 0 14px}
+form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);margin-bottom:10px}
+form input:not([type=checkbox]):not([type=file]),form select,form textarea{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);font-size:14px;color:var(--ink);width:100%}
+textarea{min-height:70px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:13px;margin:0}
+.rel{max-height:160px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.actions{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.help{font-size:13px;color:var(--muted);background:var(--soft);padding:10px 12px;border-radius:8px;margin:0 0 12px}
+.btnlike{display:inline-block;border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;color:var(--ink);font-size:14px;margin:0}
+@media (max-width:760px){
+ header{padding:12px 16px;gap:10px}
+ #history{padding:8px 16px}
+ .layout{grid-template-columns:1fr;padding:12px 16px;gap:10px}
+ aside{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
+ .d-group{display:none}
+ .d-item{white-space:nowrap;border:1px solid var(--line);border-radius:20px;padding:4px 10px;flex-shrink:0}
+ .d-item span{margin-left:4px}
+ .day{min-height:64px;padding:2px}
+ .ci{font-size:10px;padding:0 3px}
+ .task{flex-wrap:wrap}
+ .row2{grid-template-columns:1fr}
+}
+.dot{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--rej);color:#fff;font-size:11px;font-weight:700;text-align:center;margin-left:2px}
+#who{font-size:13px;color:var(--muted);white-space:nowrap}
+.hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.mrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.mi{flex:1;min-width:160px}
+.mb{display:flex;gap:6px;flex-wrap:wrap}
+.mb button.primary{border-color:var(--accent)}
+.empty-box{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+#gate[hidden],#app[hidden]{display:none}
+.g-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px;width:min(460px,100%);box-shadow:0 10px 40px rgba(0,0,0,.06)}
+.g-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.g-top b{font-size:16px}
+.g-card h2{margin:0 0 14px;font-size:20px}
+.g-p{color:var(--muted);margin:0 0 16px}
+.g-err{color:var(--rej);font-size:13px;margin:0 0 10px}
+.g-ok{color:var(--done);font-size:13px;margin:0 0 10px}
+.gate-lang button{padding:3px 10px;font-size:12px}
+form label small{color:var(--muted);font-weight:400}
+button.wide{width:100%;padding:10px;margin-top:4px}
+button.link{border:0;background:none;color:var(--accent);padding:10px 0 0;font-size:13px}
+button:disabled{opacity:.6;cursor:default}
+</style>
+</head>
+<body>
+<div id="gate" hidden></div>
+<div id="app" hidden>
+<header>
+  <div class="brand" id="brand">업무 정리</div>
+  <div class="month-nav"><button data-act="prevM" aria-label="이전 달">‹</button><button id="monthLabel" class="m-btn" data-act="hist"></button><button data-act="nextM" aria-label="다음 달">›</button></div>
+  <span class="past-h" id="pastFlag"></span>
+  <div id="slogan" data-act="slogan" title="클릭해서 슬로건 편집"></div>
+  <span class="sync" id="sync"></span>
+  <span id="who"></span>
+  <button id="membersBtn" data-act="members" hidden></button>
+  <button data-act="settings">설정</button>
+</header>
+<div id="history" hidden></div>
+<div class="layout">
+  <aside id="side"></aside>
+  <main>
+    <nav id="tabs"></nav>
+    <div id="view"></div>
+  </main>
+</div>
+</div>
+<dialog id="dlg"></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/firebase@13.1.0/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@13.1.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@13.1.0/firebase-firestore-compat.js"></script>
+<script>
+/* ==========================================================
+   Firebase 설정 — Firebase 콘솔 › 프로젝트 설정 › 내 앱(웹 앱)의
+   firebaseConfig 값을 그대로 복사해 아래에 붙여넣으세요.
+   (이 값은 공개되어도 괜찮습니다. 데이터는 로그인·승인 규칙으로 보호됩니다.)
+   ========================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDFOcxfXBFbCCJ5r1r0epEzpIx8hlO4OAw",
+  authDomain: "swiss-church-9d8ee.firebaseapp.com",
+  projectId: "swiss-church-9d8ee",
+  storageBucket: "swiss-church-9d8ee.firebasestorage.app",
+  messagingSenderId: "472468297808",
+  appId: "1:472468297808:web:44d0b66ff728d04a7c1955"
+};
+const ID_DOMAIN='users.swisschurch.app';   // 아이디를 Firebase 로그인용 주소로 바꿀 때 쓰는 내부 도메인 (바꾸지 마세요)
+
+/* ========== 기본 설정 ========== */
+const STATUSES=['시작 전','진행 중','완료','반려','차후'];
+const SCLS={'시작 전':'todo','진행 중':'doing','완료':'done','반려':'rej','차후':'later'};
+const OFFICIAL='교회 공식';
+const PRIOS=['긴급','높음','보통','낮음'];
+const PCLS={'긴급':'urgent','높음':'high','보통':'mid','낮음':'low'};
+
+/* ========== 언어 (한국어 / English) ========== */
+let lang=(()=>{try{return localStorage.getItem('wm_lang')||'ko'}catch(e){return 'ko'}})();
+const MONTHS_EN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const EN_MAP={
+  '시작 전':'To do','진행 중':'In progress','완료':'Done','반려':'Rejected','차후':'Later',
+  '긴급':'Urgent','높음':'High','보통':'Normal','낮음':'Low','전체':'All',
+  '교회 공식':'Church official',
+  '24부서':'24 Departments','네 생물':'Four Living Creatures','공통':'Common',
+  '총무부':'General Affairs','신학부':'Theology','전도부':'Evangelism','기획부':'Planning','재정부':'Finance',
+  '문화부':'Culture','찬양부':'Worship','국내선교부':'Domestic Mission','내무부':'Internal Affairs',
+  'HWPL':'HWPL','제네바':'Geneva','장년회':"Men's Assoc.",'부녀회':"Women's Assoc.",'청년회':'Youth Assoc.','일반':'General'
+};
+const L=v=>lang==='en'?(EN_MAP[v]||v):v;   // 상태·우선순위·부서명 표시용
+const mName=m=>lang==='en'?MONTHS_EN[m-1]:`${m}월`;
+const I18N={
+ ko:{
+  loginTitle:'로그인',signupTitle:'가입 신청',loginId:'아이디',password:'비밀번호',password2:'비밀번호 확인',yourName:'이름',yourDept:'소속 부서 (선택)',
+  idRule:'영문 소문자·숫자·._- 3~20자',pwRule:'6자 이상',doLogin:'로그인',doSignup:'가입 신청하기',toSignup:'계정이 없나요? 가입 신청',toLogin:'이미 계정이 있나요? 로그인',
+  signupDone:'가입 신청이 접수되었습니다. 관리자가 승인하면 사용할 수 있습니다.',
+  pendingH:'승인 대기 중',pendingP:id=>`<b>${id}</b> 계정의 가입 신청을 관리자가 확인하고 있습니다. 승인되면 이 화면이 자동으로 열립니다.`,
+  rejectedH:'사용할 수 없는 계정',rejectedP:'이 계정은 승인되지 않았거나 사용이 중지되었습니다. 관리자에게 문의하세요.',
+  missingH:'가입 신청 정보 보내기',missingP:'계정은 만들어졌지만 신청 정보가 전송되지 않았습니다. 이름을 입력하고 다시 보내 주세요.',sendReq:'신청 보내기',
+  logout:'로그아웃',loading:'불러오는 중…',
+  setupH:'Firebase 연결이 필요합니다',setupP:'index.html 맨 위의 FIREBASE_CONFIG에 Firebase 웹 앱 설정값을 넣어야 합니다. 저장소 README의 안내를 따라 주세요.',
+  eId:'아이디는 영문 소문자·숫자·마침표·밑줄·하이픈으로 3~20자여야 합니다.',ePw:'비밀번호는 6자 이상이어야 합니다.',ePw2:'비밀번호 확인이 일치하지 않습니다.',eName:'이름을 입력하세요.',
+  eLogin:'아이디 또는 비밀번호가 맞지 않습니다.',eTaken:'이미 사용 중인 아이디입니다.',eMany:'시도가 너무 많습니다. 잠시 후 다시 시도하세요.',eNet:'네트워크에 연결할 수 없습니다.',eGeneric:c=>`오류가 발생했습니다 (${c})`,
+  members:'회원 관리',membersH:'회원 관리',mPending:'승인 대기',mApproved:'승인됨',mRejected:'거절·중지',mNone:'해당 회원이 없습니다.',
+  approve:'승인',reject:'거절',suspend:'사용 중지',reapprove:'다시 승인',makeAdmin:'관리자 지정',unAdmin:'관리자 해제',removeReq:'신청 삭제',adminTag:'관리자',meTag:'나',
+  confirmSuspend:n=>`${n} 님의 사용을 중지할까요?`,confirmUnadmin:n=>`${n} 님의 관리자 권한을 해제할까요?`,confirmRemove:n=>`${n} 님의 신청 기록을 삭제할까요?`,
+  myInfo:'내 정보',role_admin:'관리자',role_member:'회원',changePw:'비밀번호 변경',curPw:'현재 비밀번호',newPw:'새 비밀번호',pwChanged:'비밀번호를 변경했습니다.',
+  dataH:'데이터',importAdminOnly:'가져오기는 관리자만 할 수 있습니다.',confirmImport:'가져온 내용으로 공유 데이터 전체를 바꿀까요? 다른 사람들 화면에도 바로 반영됩니다.',
+  emptyH:'공유 데이터가 비어 있습니다',emptyP:'처음 시작하려면 기존 데이터를 올리세요. 올린 내용은 승인된 모든 사람에게 바로 보입니다.',uploadLocal:n=>`이 브라우저에 저장된 기존 데이터 올리기 (업무 ${n}건)`,startEmpty:'빈 상태로 시작',
+  lastEdit:(n,d)=>`마지막 수정: ${n} · ${d}`,
+  sLive:'실시간 연결됨',sOffline:'오프라인 · 연결되면 저장됩니다',
+  brand:'업무 정리',prevM:'이전 달',nextM:'다음 달',sloganTip:'클릭해서 슬로건 편집',settings:'설정',
+  sloganLabel:m=>`${m} 슬로건`,sloganAdd:m=>`＋ ${m} 슬로건 입력`,history:'슬로건 기록',noSlogan:'슬로건 미입력',viewingPast:'지난 기록 열람 중',toThisMonth:'이번 달로',
+  starBox:'중요 표시함',allDepts:'전체 부서',tabProjects:'프로젝트',tabCalendar:'캘린더',
+  overdue:' · 기한 지남',related:n=>`연관 ${n}건`,status:'상태',priority:'우선순위',starTip:'프로젝트 중요 표시',up:'위로',down:'아래로',edit:'편집',fold:'접기',unfold:'펼치기',
+  unassigned:'프로젝트 미지정',unassignedHint:'업무 편집에서 프로젝트를 지정하면 해당 프로젝트로 옮겨집니다.',doneOf:(d,n,p)=>`${d}/${n} 완료 · ${p}%`,count:n=>`${n}건`,
+  current:'현재 진행',noCurrent:'진행 중인 업무 없음',later:'차후 할 일',done:'완료',addTaskLine:'＋ 업무 추가',
+  addProject:'＋ 프로젝트',addTask:'＋ 업무',search:'업무 검색',carry:'미완료 다음 달로 이월',carryTip:'시작 전·진행 중·차후 업무를 다음 달로 복사합니다',
+  infoTip:'눌러서 설명·진행률 보기',starHint:'★ 표시한 프로젝트가 모입니다. 프로젝트 이름 옆 ★을 눌러 추가·해제하세요.',starEmpty:'아직 중요 표시한 항목이 없습니다.',noProjects:'표시할 프로젝트가 없습니다.',
+  addEvent:'＋ 일정 추가',showOfficial:'교회 공식 일정',showDeptEv:'부서 일정',showTasks:'업무 기간',allDeptsShort:'모든 부서',calNote:x=>`${x} 표시 중 · 업무 막대 색 = 프로젝트`,
+  weekdays:['일','월','화','수','목','금','토'],agenda:m=>`${m} 일정 목록`,noEvents:'등록된 일정이 없습니다. 날짜 칸을 눌러 추가하세요.',
+  del:'삭제',cancel:'취소',save:'저장',close:'닫기',
+  editTask:'업무 편집',newTask:'업무 추가',taskName:'업무명',dept:'부서',start:'시작일',end:'종료일',project:'프로젝트',none:'없음',recMonth:'기록 월',
+  relLabel:'연관 업무 (다른 부서 업무와 연결)',noOthers:'이번 달 다른 업무 없음',memo:'메모',badDates:'종료일이 시작일보다 빠릅니다.',confirmDelTask:'이 업무를 삭제할까요?',
+  editEvent:'일정 편집',newEvent:'일정 추가',eventName:'일정명',category:'구분',date:'날짜',endMulti:'종료일 (여러 날일 때)',confirmDelEvent:'이 일정을 삭제할까요?',
+  editProject:'프로젝트 편집',newProject:'새 프로젝트',projectName:'프로젝트명',desc:'설명',color:'색상',confirmDelProject:'프로젝트를 삭제할까요? (업무는 남고 프로젝트 지정만 해제됩니다)',
+  sloganH:ml=>`${ml} 슬로건`,slogan:'슬로건',sloganPh:'이번 달 슬로건을 입력하세요',
+  settingsH:'설정',needName:'이름을 한국어나 영어 중 하나 이상 입력하세요.',autoTr:'입력 내용 자동 번역',autoTrNote:'한국어로만 또는 영어로만 입력한 내용을 다른 언어로 자동 번역해 보여줍니다. 번역은 MyMemory 무료 번역 서비스를 사용하므로 입력 내용이 그 서비스로 전송됩니다. 번역이 어색하면 항목 편집에서 English 칸을 직접 고치세요.',language:'언어 / Language',shareH:'GitHub 공유',
+  help:'저장소에 <b>data.json</b>으로 저장되어 팀원과 공유됩니다. 편집하려면 해당 저장소의 <b>Contents 읽기/쓰기</b> 권한이 있는 토큰이 필요합니다. 토큰은 이 브라우저에만 보관됩니다. 보기만 하는 사람은 토큰 없이 GitHub Pages 주소로 열면 됩니다(공개 저장소일 때).',
+  owner:'사용자/조직 (owner)',repo:'저장소 (repo)',branch:'브랜치',path:'데이터 파일 경로',token:'GitHub 토큰 (편집용, 선택)',saveConnect:'저장 · 연결',
+  exportJ:'JSON 내보내기',importJ:'JSON 가져오기',reset:'초기 데이터로 되돌리기',confirmReset:'모든 데이터를 초기 할 일 목록으로 되돌릴까요? 되돌릴 수 없습니다.',badJson:'올바른 data.json 파일이 아닙니다.',
+  noCarry:'이월할 미완료 업무가 없습니다.',confirmCarry:(n,ml)=>`미완료 업무 ${n}건을 ${ml}로 이월할까요?\n이번 달 기록은 그대로 남습니다.`,
+  sLocal:'로컬 저장 (GitHub 미연결)',sReadOnly:'읽기 전용 · 변경은 내 브라우저에만 저장됨',sSyncing:'동기화 중…',sNoData:'저장소에 data.json 없음',sDirty:'읽기 전용 · 로컬 변경 있음',
+  sOk:'최신 상태 ✓',sViewOk:'보기 전용 · 최신 상태',sPending:'저장 대기…',sSaved:'저장됨 ✓',sSaveFail:x=>`저장 실패 (${x})`,sReadFail:x=>`불러오기 실패 (${x})`},
+ en:{
+  loginTitle:'Log in',signupTitle:'Request an account',loginId:'User ID',password:'Password',password2:'Confirm password',yourName:'Name',yourDept:'Department (optional)',
+  idRule:'3–20 chars: lowercase letters, digits, . _ -',pwRule:'At least 6 characters',doLogin:'Log in',doSignup:'Send request',toSignup:'No account? Request one',toLogin:'Have an account? Log in',
+  signupDone:'Your request was sent. You can use the board once an admin approves it.',
+  pendingH:'Waiting for approval',pendingP:id=>`An admin is reviewing the request for <b>${id}</b>. This screen opens automatically once approved.`,
+  rejectedH:'Account not available',rejectedP:'This account was not approved or has been suspended. Please contact an admin.',
+  missingH:'Send your request details',missingP:'Your account exists but the request details were not sent. Enter your name and send again.',sendReq:'Send request',
+  logout:'Log out',loading:'Loading…',
+  setupH:'Firebase connection needed',setupP:'Fill in FIREBASE_CONFIG at the top of index.html with your Firebase web app settings. See the repository README.',
+  eId:'User ID must be 3–20 characters: lowercase letters, digits, period, underscore or hyphen.',ePw:'Password must be at least 6 characters.',ePw2:'Passwords do not match.',eName:'Please enter your name.',
+  eLogin:'Wrong user ID or password.',eTaken:'That user ID is already taken.',eMany:'Too many attempts. Please try again later.',eNet:'Cannot reach the network.',eGeneric:c=>`Something went wrong (${c})`,
+  members:'Members',membersH:'Members',mPending:'Pending',mApproved:'Approved',mRejected:'Rejected / suspended',mNone:'No members here.',
+  approve:'Approve',reject:'Reject',suspend:'Suspend',reapprove:'Approve again',makeAdmin:'Make admin',unAdmin:'Remove admin',removeReq:'Delete request',adminTag:'Admin',meTag:'Me',
+  confirmSuspend:n=>`Suspend ${n}?`,confirmUnadmin:n=>`Remove admin rights from ${n}?`,confirmRemove:n=>`Delete the request record for ${n}?`,
+  myInfo:'My account',role_admin:'Admin',role_member:'Member',changePw:'Change password',curPw:'Current password',newPw:'New password',pwChanged:'Password changed.',
+  dataH:'Data',importAdminOnly:'Only admins can import.',confirmImport:'Replace all shared data with the imported file? Everyone will see the change right away.',
+  emptyH:'The shared board is empty',emptyP:'Upload your existing data to get started. Everyone approved will see it right away.',uploadLocal:n=>`Upload the data saved in this browser (${n} tasks)`,startEmpty:'Start empty',
+  lastEdit:(n,d)=>`Last edited by ${n} · ${d}`,
+  sLive:'Live',sOffline:'Offline · will save when reconnected',
+  brand:'Work Board',prevM:'Previous month',nextM:'Next month',sloganTip:'Click to edit the slogan',settings:'Settings',
+  sloganLabel:m=>`${m} slogan`,sloganAdd:m=>`＋ Add ${m} slogan`,history:'Slogan history',noSlogan:'No slogan yet',viewingPast:'Viewing a past month',toThisMonth:'Back to this month',
+  starBox:'Starred',allDepts:'All departments',tabProjects:'Projects',tabCalendar:'Calendar',
+  overdue:' · overdue',related:n=>`${n} related`,status:'Status',priority:'Priority',starTip:'Star this project',up:'Move up',down:'Move down',edit:'Edit',fold:'Collapse',unfold:'Expand',
+  unassigned:'No project',unassignedHint:'Assign a project in the task editor to move a task there.',doneOf:(d,n,p)=>`${d}/${n} done · ${p}%`,count:n=>`${n} task${n===1?'':'s'}`,
+  current:'Current',noCurrent:'No active tasks',later:'Later',done:'Done',addTaskLine:'＋ Add task',
+  addProject:'＋ Project',addTask:'＋ Task',search:'Search tasks',carry:'Carry over to next month',carryTip:'Copies To do, In progress and Later tasks into next month',
+  infoTip:'Click to show description and progress',starHint:'Starred projects appear here. Click ★ next to a project name to add or remove it.',starEmpty:'Nothing starred yet.',noProjects:'No projects to show.',
+  addEvent:'＋ Add event',showOfficial:'Church official',showDeptEv:'Department events',showTasks:'Task periods',allDeptsShort:'all departments',calNote:x=>`Showing ${x} · bar color = project`,
+  weekdays:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],agenda:m=>`${m} events`,noEvents:'No events yet. Click a date to add one.',
+  del:'Delete',cancel:'Cancel',save:'Save',close:'Close',
+  editTask:'Edit task',newTask:'New task',taskName:'Task',dept:'Department',start:'Start',end:'End',project:'Project',none:'None',recMonth:'Month',
+  relLabel:'Related tasks (link to other departments)',noOthers:'No other tasks this month',memo:'Notes',badDates:'The end date is before the start date.',confirmDelTask:'Delete this task?',
+  editEvent:'Edit event',newEvent:'New event',eventName:'Event',category:'Category',date:'Date',endMulti:'End date (multi-day)',confirmDelEvent:'Delete this event?',
+  editProject:'Edit project',newProject:'New project',projectName:'Project name',desc:'Description',color:'Color',confirmDelProject:'Delete this project? (Its tasks stay, just without a project.)',
+  sloganH:ml=>`Slogan · ${ml}`,slogan:'Slogan',sloganPh:"Enter this month's slogan",
+  settingsH:'Settings',needName:'Enter a name in Korean or English.',autoTr:'Auto-translate entered content',autoTrNote:'Content entered in only one language is shown translated into the other. Translation uses the free MyMemory service, so entered text is sent to it. If a translation is off, fix it in the item editor.',language:'Language / 언어',shareH:'GitHub sharing',
+  help:'Data is saved to the repository as <b>data.json</b> and shared with the team. Editing needs a token with <b>Contents read/write</b> access to the repository. The token is kept only in this browser. Viewers can open the GitHub Pages link without a token (public repositories).',
+  owner:'User / organization (owner)',repo:'Repository (repo)',branch:'Branch',path:'Data file path',token:'GitHub token (for editing, optional)',saveConnect:'Save · connect',
+  exportJ:'Export JSON',importJ:'Import JSON',reset:'Reset to initial data',confirmReset:'Reset all data to the initial to-do list? This cannot be undone.',badJson:'This is not a valid data.json file.',
+  noCarry:'There are no unfinished tasks to carry over.',confirmCarry:(n,ml)=>`Carry ${n} unfinished task${n===1?'':'s'} over to ${ml}?\nThis month's record stays as it is.`,
+  sLocal:'Saved locally (GitHub not connected)',sReadOnly:'Read-only · changes are saved in this browser only',sSyncing:'Syncing…',sNoData:'No data.json in the repository',sDirty:'Read-only · local changes',
+  sOk:'Up to date ✓',sViewOk:'View only · up to date',sPending:'Saving…',sSaved:'Saved ✓',sSaveFail:x=>`Save failed (${x})`,sReadFail:x=>`Could not load (${x})`}
+};
+function tr(k,...a){const v=I18N[lang][k]??I18N.ko[k]??k;return typeof v==='function'?v(...a):v}
+function setLang(l){lang=l;try{localStorage.setItem('wm_lang',l)}catch(e){}document.documentElement.lang=l}
+document.documentElement.lang=lang;
+
+const $=s=>document.querySelector(s);
+const D=$('#dlg');
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const todayStr=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const todayYM=()=>todayStr().slice(0,7);
+const shiftMonth=(k,n)=>{const [y,m]=k.split('-').map(Number);const d=new Date(y,m-1+n,1);return `${d.getFullYear()}-${pad(d.getMonth()+1)}`};
+const monthLabel=k=>{const [y,m]=k.split('-');return lang==='en'?`${MONTHS_EN[m-1]} ${y}`:`${y}년 ${+m}월`};
+const fmtD=d=>d?`${+d.slice(5,7)}/${+d.slice(8,10)}`:'';
+const period=t=>t.start&&t.end?`${fmtD(t.start)}–${fmtD(t.end)}`:t.start?`${fmtD(t.start)}~`:t.end?`~${fmtD(t.end)}`:'';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+const b64enc=s=>{const b=new TextEncoder().encode(s);let bin='';for(let i=0;i<b.length;i+=8192)bin+=String.fromCharCode(...b.subarray(i,i+8192));return btoa(bin)};
+const b64dec=s=>{const bin=atob(s.replace(/\n/g,''));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))};
+
+/* ========== 입력 내용 이중 언어 (한국어 field / 영어 field_en) ========== */
+const HANGUL=/[가-힣]/;
+const TEXT_FIELDS={tasks:['title','note'],projects:['name','desc'],events:['title','note']};
+// 영어로 쓴 내용이 한국어 칸에 있으면 영어 칸으로 (반대도 마찬가지)
+function norm(o,f){const a=o[f]||'',b=o[f+'_en']||'';
+  if(a&&!b&&!HANGUL.test(a)&&/[A-Za-z]/.test(a)){o[f+'_en']=a;o[f]=''}
+  else if(b&&!a&&HANGUL.test(b)){o[f]=b;o[f+'_en']=''}}
+function eachText(d,fn){
+  for(const k in TEXT_FIELDS)(d[k]||[]).forEach(o=>TEXT_FIELDS[k].forEach(f=>fn(o,f)));
+  const ms=new Set([...Object.keys(d.slogans),...Object.keys(d.slogansEn)]);
+  ms.forEach(m=>{const o={s:d.slogans[m]||'',s_en:d.slogansEn[m]||''};fn(o,'s');
+    if(o.s)d.slogans[m]=o.s;else delete d.slogans[m];if(o.s_en)d.slogansEn[m]=o.s_en;else delete d.slogansEn[m]});
+}
+
+/* 자동 번역 (MyMemory 무료 번역 API) */
+let trCache=Object.assign({ko:{},en:{}},lsGet('wm_trcache')||{});
+let autoTr=lsGet('wm_autotr')!==false;
+const trQ=[];let trBusy=false,trStop=false;
+const canPersist=()=>!!me&&me.status==='approved';
+function decodeEnt(s){const t=document.createElement('textarea');t.innerHTML=s;return t.value}
+function pick(ko,en){ko=ko||'';en=en||'';
+  if(lang==='en'){if(en||!ko)return en;const c=trCache.en[ko];if(c)return c;queueTr(ko,'en');return ko}
+  if(ko||!en)return ko;const c=trCache.ko[en];if(c)return c;queueTr(en,'ko');return en}
+const tx=(o,f)=>pick(o[f],o[f+'_en']);
+const sloganOf=m=>pick(data.slogans[m],data.slogansEn[m]);
+function queueTr(src,to){
+  if(!autoTr||trStop||src.length>450)return;
+  const k=to+'\u0001'+src;if(trQ.includes(k))return;
+  trQ.push(k);if(!trBusy)setTimeout(runTr,30);
+}
+async function runTr(){
+  if(trBusy)return;trBusy=true;let got=0;
+  while(trQ.length&&!trStop){
+    const [to,src]=trQ.shift().split('\u0001');if(trCache[to][src])continue;
+    try{
+      const from=to==='en'?'ko':'en';
+      const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(src)}&langpair=${from}|${to}`);
+      const j=await r.json();const out=decodeEnt((j.responseData&&j.responseData.translatedText)||'');
+      if(Number(j.responseStatus)!==200||/MYMEMORY WARNING|QUERY LENGTH LIMIT EXCEEDED/.test(out)){trStop=true;break}
+      if(out){trCache[to][src]=out;got++}
+    }catch(e){trStop=true;break}
+  }
+  trBusy=false;
+  if(got){lsSet('wm_trcache',trCache);if(canPersist()&&persistTr())save();else render()}
+}
+// 번역 결과를 데이터에도 저장 (편집 권한이 있을 때) → 다른 사람도 같은 번역을 봄
+function persistTr(){let ch=false;
+  eachText(data,(o,f)=>{const ko=o[f],en=o[f+'_en'];
+    if(ko&&!en&&trCache.en[ko]){o[f+'_en']=trCache.en[ko];ch=true}
+    else if(en&&!ko&&trCache.ko[en]){o[f]=trCache.ko[en];ch=true}});
+  return ch}
+
+/* 편집창: 한국어 / English 두 칸 */
+function bi(f,o,label,area){
+  const order=lang==='en'?['en','ko']:['ko','en'];
+  return `<div class="row2">${order.map(l=>{const nm=l==='ko'?f:f+'_en',v=esc(o[nm]||'');
+    return `<label>${label} · ${l==='ko'?'한국어':'English'}${area?`<textarea name="${nm}">${v}</textarea>`:`<input name="${nm}" value="${v}">`}</label>`}).join('')}</div>`;
+}
+// 한쪽만 고치면 다른 쪽은 다시 번역되도록 비움
+function biRead(fd,o,f){
+  let ko=(fd.get(f)||'').trim(),en=(fd.get(f+'_en')||'').trim();
+  const ok=o[f]||'',oe=o[f+'_en']||'';
+  if(ko!==ok&&en===oe&&oe)en='';else if(en!==oe&&ko===ok&&ok)ko='';
+  const r={[f]:ko,[f+'_en']:en};norm(r,f);return r;
+}
+
+/* ========== 상태 ========== */
+const DEFAULT_DEPTS=[
+  {name:'24부서',items:['총무부','신학부','전도부','기획부','재정부','문화부','찬양부','국내선교부','내무부','HWPL','제네바']},
+  {name:'네 생물',items:['장년회','부녀회','청년회']},
+  {name:'공통',items:['일반']}
+];
+function emptyData(){return {deptGroups:JSON.parse(JSON.stringify(DEFAULT_DEPTS)),slogans:{},slogansEn:{},projects:[],tasks:[],events:[]}}
+function migrate(d){
+  d=Object.assign(emptyData(),d||{});
+  d.projects.forEach((p,i)=>{if(!PRIOS.includes(p.priority))p.priority='보통';if(typeof p.order!=='number')p.order=i});
+  d.tasks.forEach((t,i)=>{if(typeof t.seq!=='number')t.seq=i;t.related=t.related||[]});
+  d.slogans=d.slogans||{};d.slogansEn=d.slogansEn||{};
+  eachText(d,(o,f)=>norm(o,f));
+  return d}
+let data=emptyData();
+let me=null;              // 로그인한 사람의 회원 정보
+let members=[];           // 관리자용 회원 목록
+let auth=null,db=null,meUnsub=null,membersUnsub=null,signingUp=false;
+const ui={month:todayYM(),dept:'전체',view:'projects',stf:'전체',q:'',fold:{},showOfficial:true,showDeptEv:true,showTasks:true};
+const allDepts=()=>data.deptGroups.flatMap(g=>g.items);
+const STAR='__star__';
+const isStar=t=>!!(data.projects.find(p=>p.id===t.project)||{}).starred;
+const inDept=t=>ui.dept==='전체'||(ui.dept===STAR?isStar(t):t.dept===ui.dept);
+const defDept=()=>allDepts().includes(ui.dept)?ui.dept:'일반';
+const statusOpts=sel=>STATUSES.map(s=>`<option value="${s}" ${s===sel?'selected':''}>${L(s)}</option>`).join('');
+const prioOpts=sel=>PRIOS.map(x=>`<option value="${x}" ${x===sel?'selected':''}>${L(x)}</option>`).join('');
+const isAdmin=()=>!!me&&me.status==='approved'&&me.role==='admin';
+const fmtStamp=ms=>{const d=new Date(ms);return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
+
+function save(){Store.commit();render()}
+
+/* ========== 상태 표시 ========== */
+let lastSync=['sLive','ok'];
+function setSync(k,c='',arg){lastSync=[k,c,arg];const el=$('#sync');if(!el)return;el.textContent=tr(k,arg);el.className='sync '+c}
+addEventListener('offline',()=>setSync('sOffline','warn'));
+addEventListener('online',()=>setSync('sLive','ok'));
+
+/* ========== Firestore 동기화 ==========
+   업무·프로젝트·일정은 항목마다 문서 하나 → 서로 다른 항목을 동시에 고쳐도 충돌하지 않음.
+   바뀐 항목만 저장하고, 다른 사람의 변경은 실시간으로 받아옴. */
+const COLS=['tasks','projects','events'];
+function stable(v){
+  if(Array.isArray(v))return '['+v.map(stable).join(',')+']';
+  if(v&&typeof v==='object')return '{'+Object.keys(v).filter(k=>v[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stable(v[k])).join(',')+'}';
+  return JSON.stringify(v===undefined?null:v);
+}
+const Store={
+  snap:{tasks:{},projects:{},events:{}},metaSnap:null,unsub:[],ready:{},renderT:null,
+  reset(){this.stop();this.snap={tasks:{},projects:{},events:{}};this.metaSnap=null;this.ready={}},
+  stop(){this.unsub.forEach(f=>f());this.unsub=[]},
+  metaOf(){return {deptGroups:data.deptGroups,slogans:data.slogans,slogansEn:data.slogansEn}},
+  loaded(){return COLS.every(c=>this.ready[c])&&this.ready.meta},
+  isEmpty(){return this.loaded()&&!data.tasks.length&&!data.projects.length&&!data.events.length},
+  async commit(){
+    if(!db||!me||me.status!=='approved')return;
+    const ops=[];
+    for(const c of COLS){
+      const cur=new Map(data[c].map(o=>[o.id,o]));
+      for(const [id,o] of cur){
+        const {updBy,updAt,...rest}=o,j=stable(rest);
+        if(this.snap[c][id]!==j){o.updBy=me.name||me.loginId;o.updAt=Date.now();ops.push(['set',c,id,JSON.parse(JSON.stringify(o))]);this.snap[c][id]=j}
+      }
+      for(const id of Object.keys(this.snap[c]))if(!cur.has(id)){ops.push(['del',c,id]);delete this.snap[c][id]}
+    }
+    const mj=stable(this.metaOf());
+    if(mj!==this.metaSnap){ops.push(['set','meta','main',JSON.parse(JSON.stringify(this.metaOf()))]);this.metaSnap=mj}
+    if(!ops.length)return;
+    setSync('sPending');
+    try{
+      for(let i=0;i<ops.length;i+=400){
+        const b=db.batch();
+        ops.slice(i,i+400).forEach(([k,c,id,v])=>{const r=db.collection(c).doc(id);k==='set'?b.set(r,v):b.delete(r)});
+        await b.commit();
+      }
+      setSync('sSaved','ok');
+    }catch(e){
+      console.error(e);
+      ops.forEach(([k,c,id])=>{if(k==='set'){if(c==='meta')this.metaSnap=null;else delete this.snap[c][id]}});
+      setSync('sSaveFail','err',e.code||e.message);
+    }
+  },
+  listen(){
+    this.stop();
+    COLS.forEach(c=>this.unsub.push(db.collection(c).onSnapshot(qs=>{
+      qs.docChanges().forEach(ch=>{
+        const id=ch.doc.id;
+        if(ch.type==='removed'){data[c]=data[c].filter(o=>o.id!==id);delete this.snap[c][id];return}
+        const v=ch.doc.data();v.id=id;
+        const {updBy,updAt,...rest}=v;
+        this.snap[c][id]=stable(rest);
+        const ex=data[c].find(o=>o.id===id);
+        if(ex){Object.keys(ex).forEach(k=>delete ex[k]);Object.assign(ex,v)}else data[c].push(v);
+      });
+      if(c==='tasks')data.tasks.sort((a,b)=>(a.seq||0)-(b.seq||0));
+      this.ready[c]=true;this.changed();
+    },e=>this.fail(e))));
+    this.unsub.push(db.collection('meta').doc('main').onSnapshot(s=>{
+      if(s.exists){const v=s.data();
+        data.deptGroups=v.deptGroups&&v.deptGroups.length?v.deptGroups:data.deptGroups;
+        data.slogans=v.slogans||{};data.slogansEn=v.slogansEn||{};
+        this.metaSnap=stable(this.metaOf());}
+      this.ready.meta=true;this.changed();
+    },e=>this.fail(e)));
+  },
+  fail(e){console.error(e);setSync('sReadFail','err',e.code||e.message)},
+  changed(){clearTimeout(this.renderT);this.renderT=setTimeout(()=>{if(this.loaded()&&me&&me.status==='approved'){showScreen('app');render()}},60)}
+};
+
+/* ========== 로그인 · 가입 신청 · 승인 ========== */
+const ID_RE=/^[a-z0-9._-]{3,20}$/;
+const toEmail=id=>`${id.trim().toLowerCase()}@${ID_DOMAIN}`;
+const fromEmail=e=>(e||'').split('@')[0];
+function authErr(e){
+  const c=(e&&e.code)||'';
+  if(/invalid-credential|wrong-password|user-not-found|invalid-login|invalid-email/.test(c))return tr('eLogin');
+  if(/email-already-in-use/.test(c))return tr('eTaken');
+  if(/weak-password/.test(c))return tr('ePw');
+  if(/too-many-requests/.test(c))return tr('eMany');
+  if(/network/.test(c))return tr('eNet');
+  return tr('eGeneric',c||(e&&e.message)||'?');
+}
+let gateMode='login',gateMsg='',gateErr='';
+function showScreen(s){
+  const app=$('#app'),gate=$('#gate');
+  if(s==='app'){gate.hidden=true;app.hidden=false;return}
+  app.hidden=true;gate.hidden=false;
+  const langSeg=`<div class="seg gate-lang"><button type="button" class="${lang==='ko'?'on':''}" data-act="glang" data-l="ko">한국어</button><button type="button" class="${lang==='en'?'on':''}" data-act="glang" data-l="en">English</button></div>`;
+  const deptSel=`<select name="dept"><option value="">—</option>${DEFAULT_DEPTS.map(g=>`<optgroup label="${esc(L(g.name))}">${g.items.map(d=>`<option value="${esc(d)}">${esc(L(d))}</option>`).join('')}</optgroup>`).join('')}</select>`;
+  let body='';
+  if(s==='setup')body=`<h2>${tr('setupH')}</h2><p class="g-p">${tr('setupP')}</p>`;
+  else if(s==='loading')body=`<p class="g-p">${tr('loading')}</p>`;
+  else if(s==='login'){
+    body=gateMode==='login'?`
+      <h2>${tr('loginTitle')}</h2>
+      ${gateMsg?`<p class="g-ok">${gateMsg}</p>`:''}
+      <form id="gform" data-mode="login">
+        <label>${tr('loginId')}<input name="id" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+        <label>${tr('password')}<input name="pw" type="password" autocomplete="current-password" required></label>
+        ${gateErr?`<p class="g-err">${esc(gateErr)}</p>`:''}
+        <button class="primary wide">${tr('doLogin')}</button>
+      </form>
+      <button class="link" data-act="gmode" data-m="signup">${tr('toSignup')}</button>`
+    :`
+      <h2>${tr('signupTitle')}</h2>
+      <form id="gform" data-mode="signup">
+        <label>${tr('loginId')} <small>${tr('idRule')}</small><input name="id" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+        <div class="row2"><label>${tr('password')} <small>${tr('pwRule')}</small><input name="pw" type="password" autocomplete="new-password" required></label>
+        <label>${tr('password2')}<input name="pw2" type="password" autocomplete="new-password" required></label></div>
+        <div class="row2"><label>${tr('yourName')}<input name="name" required maxlength="50"></label><label>${tr('yourDept')}${deptSel}</label></div>
+        ${gateErr?`<p class="g-err">${esc(gateErr)}</p>`:''}
+        <button class="primary wide">${tr('doSignup')}</button>
+      </form>
+      <button class="link" data-act="gmode" data-m="login">${tr('toLogin')}</button>`;
+  }
+  else if(s==='pending')body=`<h2>${tr('pendingH')}</h2><p class="g-p">${tr('pendingP',esc(me.loginId||''))}</p><button data-act="logout">${tr('logout')}</button>`;
+  else if(s==='rejected')body=`<h2>${tr('rejectedH')}</h2><p class="g-p">${tr('rejectedP')}</p><button data-act="logout">${tr('logout')}</button>`;
+  else if(s==='missing')body=`<h2>${tr('missingH')}</h2><p class="g-p">${tr('missingP')}</p>
+      <form id="gform" data-mode="missing"><div class="row2"><label>${tr('yourName')}<input name="name" required maxlength="50"></label><label>${tr('yourDept')}${deptSel}</label></div>
+      ${gateErr?`<p class="g-err">${esc(gateErr)}</p>`:''}<button class="primary wide">${tr('sendReq')}</button></form>
+      <button class="link" data-act="logout">${tr('logout')}</button>`;
+  gate.dataset.screen=s;
+  gate.innerHTML=`<div class="g-card"><div class="g-top"><b>${tr('brand')}</b>${langSeg}</div>${body}</div>`;
+  const f=$('#gform');if(f){const i=f.querySelector('input');if(i)i.focus()}
+}
+async function gateSubmit(f){
+  const fd=new FormData(f),mode=f.dataset.mode;gateErr='';
+  const btn=f.querySelector('button.primary');btn.disabled=true;
+  try{
+    if(mode==='login'){
+      const id=(fd.get('id')||'').trim().toLowerCase();
+      await auth.signInWithEmailAndPassword(toEmail(id),fd.get('pw'));
+      gateMsg='';return;
+    }
+    const name=(fd.get('name')||'').trim(),dept=fd.get('dept')||'';
+    if(mode==='signup'){
+      const id=(fd.get('id')||'').trim().toLowerCase(),pw=fd.get('pw');
+      if(!ID_RE.test(id))throw {msg:tr('eId')};
+      if(pw.length<6)throw {msg:tr('ePw')};
+      if(pw!==fd.get('pw2'))throw {msg:tr('ePw2')};
+      if(!name)throw {msg:tr('eName')};
+      signingUp=true;
+      const cred=await auth.createUserWithEmailAndPassword(toEmail(id),pw);
+      await db.collection('users').doc(cred.user.uid).set({loginId:id,name,dept,status:'pending',role:'member',createdAt:Date.now()});
+      signingUp=false;gateMode='login';
+    }else if(mode==='missing'){
+      if(!name)throw {msg:tr('eName')};
+      const u=auth.currentUser;
+      await db.collection('users').doc(u.uid).set({loginId:fromEmail(u.email),name,dept,status:'pending',role:'member',createdAt:Date.now()});
+    }
+  }catch(e){
+    signingUp=false;gateErr=e.msg||authErr(e);
+    showScreen($('#gate').dataset.screen||'login');
+  }finally{if(btn.isConnected)btn.disabled=false}
+}
+function startAuth(){
+  if(!FIREBASE_CONFIG.apiKey||!FIREBASE_CONFIG.projectId){showScreen('setup');return}
+  firebase.initializeApp(FIREBASE_CONFIG);
+  auth=firebase.auth();db=firebase.firestore();
+  if(new URLSearchParams(location.search).has('emulator')){auth.useEmulator('http://127.0.0.1:9099');db.useEmulator('127.0.0.1',8080)}
+  showScreen('loading');
+  auth.onAuthStateChanged(u=>{
+    if(meUnsub){meUnsub();meUnsub=null}
+    if(membersUnsub){membersUnsub();membersUnsub=null}
+    Store.reset();data=emptyData();me=null;members=[];
+    if(!u){gateMode='login';showScreen('login');return}
+    showScreen('loading');
+    meUnsub=db.collection('users').doc(u.uid).onSnapshot(s=>{
+      if(!s.exists){me={uid:u.uid,loginId:fromEmail(u.email),status:'missing'};if(!signingUp)showScreen('missing');return}
+      const wasApproved=me&&me.status==='approved';
+      me={uid:u.uid,...s.data()};
+      if(me.status==='approved'){
+        if(!wasApproved){Store.reset();data=emptyData();Store.listen()}
+        watchMembers();
+        if(Store.loaded()){showScreen('app');render()}
+      }else{
+        Store.reset();data=emptyData();watchMembers();
+        showScreen(me.status==='rejected'?'rejected':'pending');
+      }
+    },e=>{console.error(e);gateErr=authErr(e);showScreen('login')});
+  });
+}
+function watchMembers(){
+  if(isAdmin()){
+    if(!membersUnsub)membersUnsub=db.collection('users').onSnapshot(qs=>{
+      members=qs.docs.map(d=>({uid:d.id,...d.data()})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+      if(!$('#app').hidden)renderHeader();
+      if(D.open&&D.dataset.kind==='members')openMembers();
+    },e=>console.error(e));
+  }else if(membersUnsub){membersUnsub();membersUnsub=null;members=[]}
+}
+async function setMember(uid,patch){
+  try{await db.collection('users').doc(uid).update(patch)}catch(e){alert(authErr(e))}
+}
+function openMembers(){
+  D.dataset.kind='members';
+  const grp=(st,title)=>{
+    const list=members.filter(m=>m.status===st);
+    return `<h4 class="sh">${title} <span class="badge">${list.length}</span></h4>
+      ${list.length?list.map(m=>{
+        const self=m.uid===me.uid,nm=esc(m.name||m.loginId);
+        let btns='';
+        if(st==='pending')btns=`<button class="mini primary" data-act="mApprove" data-id="${m.uid}">${tr('approve')}</button><button class="mini danger" data-act="mReject" data-id="${m.uid}">${tr('reject')}</button>`;
+        else if(st==='approved'&&!self)btns=(m.role==='admin'?`<button class="mini" data-act="mUnadmin" data-id="${m.uid}">${tr('unAdmin')}</button>`:`<button class="mini" data-act="mAdmin" data-id="${m.uid}">${tr('makeAdmin')}</button>`)+`<button class="mini danger" data-act="mSuspend" data-id="${m.uid}">${tr('suspend')}</button>`;
+        else if(st==='rejected')btns=`<button class="mini" data-act="mApprove" data-id="${m.uid}">${tr('reapprove')}</button><button class="mini danger" data-act="mRemove" data-id="${m.uid}">${tr('removeReq')}</button>`;
+        return `<div class="mrow"><div class="mi"><b>${nm}</b>${m.role==='admin'?` <span class="dtag off">${tr('adminTag')}</span>`:''}${self?` <span class="dtag">${tr('meTag')}</span>`:''}
+          <div class="t-meta"><span>${esc(m.loginId||'')}</span>${m.dept?`<span>${esc(L(m.dept))}</span>`:''}${m.createdAt?`<span>${fmtStamp(m.createdAt)}</span>`:''}</div></div>
+          <div class="mb">${btns}</div></div>`}).join(''):`<p class="empty">${tr('mNone')}</p>`}`;
+  };
+  D.innerHTML=`<h3>${tr('membersH')}</h3>${grp('pending',tr('mPending'))}<hr class="hr">${grp('approved',tr('mApproved'))}<hr class="hr">${grp('rejected',tr('mRejected'))}
+    <div class="actions"><span class="grow"></span><button type="button" data-act="close">${tr('close')}</button></div>`;
+  if(!D.open)D.showModal();
+}
+function memberAction(a,id){
+  const m=members.find(x=>x.uid===id);if(!m)return;const nm=m.name||m.loginId;
+  if(a==='mApprove')setMember(id,{status:'approved'});
+  else if(a==='mReject')setMember(id,{status:'rejected'});
+  else if(a==='mSuspend'){if(confirm(tr('confirmSuspend',nm)))setMember(id,{status:'rejected'})}
+  else if(a==='mAdmin')setMember(id,{role:'admin'});
+  else if(a==='mUnadmin'){if(confirm(tr('confirmUnadmin',nm)))setMember(id,{role:'member'})}
+  else if(a==='mRemove'){if(confirm(tr('confirmRemove',nm)))db.collection('users').doc(id).delete().catch(e=>alert(authErr(e)))}
+}
+function localOld(){const d=lsGet('wm_data');return d&&Array.isArray(d.tasks)&&d.tasks.length?d:null}
+function importData(d){
+  const fresh=migrate(JSON.parse(JSON.stringify(d)));
+  delete fresh.updatedAt;delete fresh.version;
+  data.deptGroups=fresh.deptGroups;data.slogans=fresh.slogans;data.slogansEn=fresh.slogansEn;
+  data.projects=fresh.projects;data.tasks=fresh.tasks;data.events=fresh.events;
+  save();
+}
+
+/* ========== 렌더링 ========== */
+function render(){
+  if(!me||me.status!=='approved')return;
+  const ae=document.activeElement,fid=ae&&ae.id==='q',sel=fid?[ae.selectionStart,ae.selectionEnd]:null;
+  renderHeader();renderHistory();renderSide();renderTabs();({calendar:renderCalendar,projects:renderProjects})[ui.view]();
+  if(fid){const q=$('#q');if(q){q.focus();q.setSelectionRange(...sel)}}
+}
+
+function renderHeader(){
+  document.title=tr('brand');
+  $('#brand').textContent=tr('brand');
+  $('[data-act=prevM]').setAttribute('aria-label',tr('prevM'));
+  $('[data-act=nextM]').setAttribute('aria-label',tr('nextM'));
+  $('#slogan').title=tr('sloganTip');
+  $('[data-act=settings]').textContent=tr('settings');
+  const mbn=$('#membersBtn');mbn.hidden=!isAdmin();
+  if(isAdmin()){const pc=members.filter(m=>m.status==='pending').length;mbn.innerHTML=`${tr('members')}${pc?` <span class="dot">${pc}</span>`:''}`}
+  $('#who').textContent=me?(me.name||me.loginId):'';
+  const mb=$('#monthLabel');mb.innerHTML=`${monthLabel(ui.month)}<i>${ui.hist?'▴':'▾'}</i>`;mb.classList.toggle('on',!!ui.hist);mb.title=tr('history');
+  $('#pastFlag').innerHTML=ui.month<todayYM()&&!ui.hist?`${tr('viewingPast')}<button data-act="month" data-m="${todayYM()}">${tr('toThisMonth')}</button>`:'';
+  const s=sloganOf(ui.month),m=mName(+ui.month.slice(5));
+  $('#slogan').innerHTML=s?`<span class="sl-label">${tr('sloganLabel',m)}</span><span class="sl-text">${esc(s)}</span>`:`<span class="sl-empty">${tr('sloganAdd',m)}</span>`;
+  setSync(...lastSync);
+}
+function renderHistory(){
+  $('#history').hidden=!ui.hist;if(!ui.hist)return;
+  const ms=[...new Set([...Object.keys(data.slogans),...Object.keys(data.slogansEn),...data.tasks.map(t=>t.month),todayYM(),ui.month])].sort().reverse();
+  $('#history').innerHTML=`<span class="h-title">${tr('history')}</span>`+ms.map(k=>`<button class="h-chip ${k===ui.month?'on':''}" data-act="month" data-m="${k}"><small>${k.replace('-','.')}</small>${esc(sloganOf(k)||tr('noSlogan'))}</button>`).join('')
+    +(ui.month<todayYM()?`<span class="past">${tr('viewingPast')}<button data-act="month" data-m="${todayYM()}">${tr('toThisMonth')}</button></span>`:'');
+}
+function renderSide(){
+  const open=d=>data.tasks.filter(t=>t.month===ui.month&&(d==='전체'||t.dept===d)&&['시작 전','진행 중'].includes(t.status)).length;
+  const sc=data.projects.filter(p=>p.starred).length;
+  let h=`<button class="d-item star-box ${ui.dept===STAR?'on':''}" data-act="dept" data-d="${STAR}"><b class="sb">★</b>${tr('starBox')}<span>${sc||''}</span></button>
+  <div class="d-sep"></div>
+  <button class="d-item ${ui.dept==='전체'?'on':''}" data-act="dept" data-d="전체">${tr('allDepts')}<span>${open('전체')}</span></button>`;
+  data.deptGroups.forEach(g=>{
+    h+=`<div class="d-group">${esc(L(g.name))}</div>`+g.items.map(d=>`<button class="d-item ${ui.dept===d?'on':''}" data-act="dept" data-d="${esc(d)}">${esc(L(d))}<span>${open(d)||''}</span></button>`).join('');
+  });
+  $('#side').innerHTML=h;
+}
+function renderTabs(){
+  $('#tabs').innerHTML=[['projects',tr('tabProjects')],['calendar',tr('tabCalendar')]].map(([v,l])=>`<button class="${ui.view===v?'on':''}" data-act="view" data-v="${v}">${l}</button>`).join('');
+}
+
+function row(t,showProj){
+  const p=data.projects.find(x=>x.id===t.project);
+  const per=period(t);
+  const late=t.end&&t.end<todayStr()&&!['완료','반려','차후'].includes(t.status);
+  const rel=t.related.map(r=>data.tasks.find(x=>x.id===r)).filter(Boolean);
+  return `<div class="task s-${SCLS[t.status]}">
+    <div class="t-body" data-act="editTask" data-id="${t.id}">
+      <div class="t-title">${esc(tx(t,'title'))}</div>
+      <div class="t-meta">
+        <span class="dtag">${esc(L(t.dept))}</span>
+        ${per?`<span class="${late?'late':''}">${per}${late?tr('overdue'):''}</span>`:''}
+        ${showProj&&p?`<span class="ptag" style="--c:${p.color}">${esc(tx(p,'name'))}</span>`:''}
+        ${rel.length?`<span title="${esc(rel.map(x=>L(x.dept)+' · '+tx(x,'title')).join('\n'))}">${tr('related',rel.length)}</span>`:''}
+        ${tx(t,'note')?`<span class="note">${esc(tx(t,'note'))}</span>`:''}
+      </div>
+    </div>
+    <select class="st s-${SCLS[t.status]}" data-id="${t.id}" aria-label="${tr('status')}">${statusOpts(t.status)}</select>
+  </div>`;
+}
+const byDept=a=>{const o=allDepts();return [...a].sort((x,y)=>o.indexOf(x.dept)-o.indexOf(y.dept))};
+const rows=a=>a.length?byDept(a).map(t=>row(t)).join(''):'';
+const sortedProjects=()=>[...data.projects].sort((a,b)=>PRIOS.indexOf(a.priority)-PRIOS.indexOf(b.priority)||a.order-b.order);
+
+function projBlock(p,ts){
+  const key=p?p.id:'none';
+  const cur=ts.filter(t=>['시작 전','진행 중','반려'].includes(t.status)&&(ui.stf==='전체'||t.status===ui.stf));
+  const later=ts.filter(t=>t.status==='차후'),done=ts.filter(t=>t.status==='완료');
+  const counted=ts.filter(t=>t.status!=='반려'),pct=counted.length?Math.round(done.length/counted.length*100):0;
+  const depts=allDepts().filter(d=>ts.some(t=>t.dept===d));
+  const folded=ui.fold[key],info=!!(ui.info||{})[key];
+  let head;
+  if(p){
+    const same=sortedProjects().filter(x=>x.priority===p.priority),i=same.indexOf(p);
+    head=`<div class="proj-h">
+      <select class="prio pr-${PCLS[p.priority]}" data-id="${p.id}" aria-label="${tr('priority')}">${prioOpts(p.priority)}</select>
+      <button class="tstar pstar ${p.starred?'on':''}" data-act="pstar" data-id="${p.id}" title="${tr('starTip')}">★</button>
+      <span class="grow"></span>
+      <button class="mini" data-act="pmove" data-id="${p.id}" data-dir="-1" ${i<=0?'disabled':''} title="${tr('up')}">▲</button>
+      <button class="mini" data-act="pmove" data-id="${p.id}" data-dir="1" ${i>=same.length-1?'disabled':''} title="${tr('down')}">▼</button>
+      <button class="mini" data-act="editProject" data-id="${p.id}">${tr('edit')}</button>
+      <button class="mini" data-act="pfold" data-k="${key}">${folded?tr('unfold'):tr('fold')}</button>
+    </div>
+    <h3 class="proj-title" data-act="pinfo" data-k="${key}" title="${tr('infoTip')}">${esc(tx(p,'name'))}<i>${info?'▴':'▾'}</i></h3>
+    ${info&&tx(p,'desc')?`<p class="proj-desc">${esc(tx(p,'desc'))}</p>`:''}`;
+  }else{
+    head=`<div class="proj-h"><h3 class="proj-title u" data-act="pinfo" data-k="none" title="${tr('infoTip')}">${tr('unassigned')}<i>${info?'▴':'▾'}</i></h3><span class="grow"></span><button class="mini" data-act="pfold" data-k="none">${folded?tr('unfold'):tr('fold')}</button></div>
+    ${info?`<p class="proj-desc">${tr('unassignedHint')}</p>`:''}`;
+  }
+  const meta=!info?'':`<div class="proj-meta">
+      ${p?`<span class="prog"><i style="width:${pct}%"></i></span><span>${tr('doneOf',done.length,counted.length,pct)}</span>`:`<span>${tr('count',ts.length)}</span>`}
+      ${depts.map(d=>`<span class="dtag">${esc(L(d))}</span>`).join('')}
+    </div>`;
+  const body=folded?'':`
+    <div class="sub-h">${tr('current')} <span class="badge">${cur.length}</span></div>
+    ${rows(cur)||`<p class="empty">${tr('noCurrent')}</p>`}
+    ${later.length?`<details class="sub" data-k="later:${key}" ${ui['later:'+key]?'open':''}><summary>${tr('later')} <span class="badge">${later.length}</span></summary>${rows(later)}</details>`:''}
+    ${done.length?`<details class="sub" data-k="done:${key}" ${ui['done:'+key]?'open':''}><summary>${tr('done')} <span class="badge">${done.length}</span></summary>${rows(done)}</details>`:''}
+    <div class="fill"></div>
+    <button class="addline" data-act="addTask" ${p?`data-project="${p.id}"`:''}>${tr('addTaskLine')}</button>`;
+  return `<section class="proj ${p?'':'none'}" style="--c:${p?p.color:'var(--line)'}">${head}${meta}${body}</section>`;
+}
+
+function renderProjects(){
+  const q=ui.q.trim().toLowerCase();
+  const list=data.tasks.filter(t=>t.month===ui.month&&inDept(t)&&(!q||[t.title,t.title_en,t.note,t.note_en,tx(t,'title')].join(' ').toLowerCase().includes(q)));
+  const curAll=list.filter(t=>['시작 전','진행 중','반려'].includes(t.status));
+  const filtered=ui.dept!=='전체'||q;
+  const chip=s=>`<button class="${ui.stf===s?'on':''}" data-act="stf" data-s="${s}">${L(s)} ${s==='전체'?curAll.length:curAll.filter(t=>t.status===s).length}</button>`;
+  let blocks=sortedProjects().map(p=>{const ts=list.filter(t=>t.project===p.id);return (filtered&&!ts.length&&!(ui.dept===STAR&&p.starred&&!q))?'':projBlock(p,ts)}).join('');
+  const loose=ui.dept===STAR?[]:list.filter(t=>!t.project||!data.projects.some(p=>p.id===t.project));
+  if(loose.length)blocks+=projBlock(null,loose);
+  $('#view').innerHTML=`
+    <div class="toolbar">
+      <button class="primary" data-act="addProject">${tr('addProject')}</button>
+      <button data-act="addTask">${tr('addTask')}</button>
+      <input type="search" id="q" placeholder="${tr('search')}" value="${esc(ui.q)}">
+      <div class="chips">${['전체','시작 전','진행 중','반려'].map(chip).join('')}</div>
+      <span class="grow"></span>
+      <button data-act="carry" title="${tr('carryTip')}">${tr('carry')}</button>
+    </div>
+    ${Store.isEmpty()&&isAdmin()&&!ui.emptyOk?`<section class="sec empty-box"><h3>${tr('emptyH')}</h3><p class="g-p">${tr('emptyP')}</p><div class="actions">
+      ${localOld()?`<button class="primary" data-act="uploadLocal">${tr('uploadLocal',localOld().tasks.length)}</button>`:''}
+      <label class="btnlike">${tr('importJ')}<input type="file" id="imp" accept=".json,application/json" hidden></label>
+      <button data-act="startEmpty">${tr('startEmpty')}</button></div></section>`:''}
+    ${ui.dept===STAR?`<p class="star-hint">${tr('starHint')}</p>`:''}
+    ${blocks?`<div class="pboard">${blocks}</div>`:`<p class="empty">${ui.dept===STAR?tr('starEmpty'):tr('noProjects')}</p>`}`;
+}
+
+function renderCalendar(){
+  const [y,m]=ui.month.split('-').map(Number);
+  const startDow=new Date(y,m-1,1).getDay(),days=new Date(y,m,0).getDate(),today=todayStr();
+  const evOk=e=>e.dept===OFFICIAL?ui.showOfficial:(ui.showDeptEv&&(ui.dept==='전체'||e.dept===ui.dept));
+  const tkOk=t=>ui.showTasks&&inDept(t)&&t.status!=='반려';
+  const evOn=(e,ds)=>e.date<=ds&&(e.end||e.date)>=ds;
+  const tkOn=(t,ds)=>{const s=t.start||t.end,e=t.end||t.start;return s&&s<=ds&&ds<=e};
+  const pc=t=>{const p=data.projects.find(x=>x.id===t.project);return p?` style="--c:${p.color}"`:''};
+  let h='<div class="cal">'+tr('weekdays').map(w=>`<div class="wd">${w}</div>`).join('');
+  for(let i=0;i<startDow;i++)h+='<div class="day blank"></div>';
+  for(let d=1;d<=days;d++){
+    const ds=`${ui.month}-${pad(d)}`,dow=(startDow+d-1)%7;
+    const items=[
+      ...data.events.filter(e=>evOk(e)&&evOn(e,ds)).sort((a,b)=>(b.dept===OFFICIAL)-(a.dept===OFFICIAL)).map(e=>`<div class="ci ${e.dept===OFFICIAL?'off':''}" data-act="editEvent" data-id="${e.id}" title="${esc(L(e.dept)+' · '+tx(e,'title'))}">${esc(tx(e,'title'))}</div>`),
+      ...data.tasks.filter(t=>tkOk(t)&&tkOn(t,ds)).map(t=>`<div class="ci tk"${pc(t)} data-act="editTask" data-id="${t.id}" title="${esc(L(t.dept)+' · '+tx(t,'title')+' ('+L(t.status)+')')}">${esc(tx(t,'title'))}</div>`)
+    ];
+    const vis=items.map((x,i)=>i>=4?x.replace('class="ci','class="ci hid'):x).join('');
+    h+=`<div class="day ${ds===today?'today':''} ${dow===0?'sun':''}" data-act="addEvent" data-date="${ds}"><div class="dn">${d}</div>${vis}${items.length>4?`<div class="more" data-act="expand">+${items.length-4}</div>`:''}</div>`;
+  }
+  const tail=(7-(startDow+days)%7)%7;for(let i=0;i<tail;i++)h+='<div class="day blank"></div>';
+  h+='</div>';
+  const evs=data.events.filter(e=>evOk(e)&&e.date.slice(0,7)===ui.month).sort((a,b)=>a.date.localeCompare(b.date));
+  const showing=ui.dept==='전체'?tr('allDeptsShort'):ui.dept===STAR?tr('starBox'):L(ui.dept);
+  $('#view').innerHTML=`
+    <div class="toolbar">
+      <button class="primary" data-act="addEvent" data-date="${today.slice(0,7)===ui.month?today:ui.month+'-01'}">${tr('addEvent')}</button>
+      <label><input type="checkbox" data-k="showOfficial" ${ui.showOfficial?'checked':''}> ${tr('showOfficial')}</label>
+      <label><input type="checkbox" data-k="showDeptEv" ${ui.showDeptEv?'checked':''}> ${tr('showDeptEv')}</label>
+      <label><input type="checkbox" data-k="showTasks" ${ui.showTasks?'checked':''}> ${tr('showTasks')}</label>
+      <span class="grow"></span><small style="color:var(--muted)">${esc(tr('calNote',showing))}</small>
+    </div>
+    ${h}
+    <section class="sec agenda"><div class="sec-h"><h3>${tr('agenda',mName(m))}</h3></div>
+      ${evs.length?evs.map(e=>`<div class="ag" data-act="editEvent" data-id="${e.id}"><b>${fmtD(e.date)}${e.end&&e.end!==e.date?'–'+fmtD(e.end):''}</b><span class="dtag ${e.dept===OFFICIAL?'off':''}">${esc(L(e.dept))}</span>${esc(tx(e,'title'))}</div>`).join(''):`<p class="empty">${tr('noEvents')}</p>`}
+    </section>`;
+}
+
+/* ========== 다이얼로그 ========== */
+function dlg(html,onSubmit){
+  D.dataset.kind='';D.innerHTML=html;D.showModal();
+  const f=D.querySelector('form');
+  if(f)f.addEventListener('submit',e=>{e.preventDefault();if(onSubmit(new FormData(f))!==false){D.close();save()}});
+}
+const deptOptions=(sel,official)=>(official?`<option value="${OFFICIAL}" ${sel===OFFICIAL?'selected':''}>${L(OFFICIAL)}</option>`:'')+data.deptGroups.map(g=>`<optgroup label="${esc(L(g.name))}">${g.items.map(d=>`<option value="${esc(d)}" ${d===sel?'selected':''}>${esc(L(d))}</option>`).join('')}</optgroup>`).join('');
+const formEnd=(delAct,id)=>`<div class="actions">${id?`<button type="button" class="danger" data-act="${delAct}" data-id="${id}">${tr('del')}</button>`:''}<span class="grow"></span><button type="button" data-act="close">${tr('cancel')}</button><button class="primary">${tr('save')}</button></div>`;
+
+function openTask(id,preset={}){
+  const t=id?data.tasks.find(x=>x.id===id):{id:'',title:'',dept:defDept(),status:'시작 전',start:'',end:'',project:'',related:[],note:'',important:false,month:ui.month,...preset};
+  const others=data.tasks.filter(x=>x.id!==t.id&&(x.month===t.month||t.related.includes(x.id)));
+  dlg(`<h3>${id?tr('editTask'):tr('newTask')}</h3><form>
+    ${bi('title',t,tr('taskName'))}
+    <div class="row2"><label>${tr('dept')}<select name="dept">${deptOptions(t.dept)}</select></label>
+      <label>${tr('status')}<select name="status">${statusOpts(t.status)}</select></label></div>
+    <div class="row2"><label>${tr('start')}<input type="date" name="start" value="${t.start}"></label><label>${tr('end')}<input type="date" name="end" value="${t.end}"></label></div>
+    <div class="row2"><label>${tr('project')}<select name="project"><option value="">${tr('none')}</option>${data.projects.map(p=>`<option value="${p.id}" ${p.id===t.project?'selected':''}>${esc(tx(p,'name'))}</option>`).join('')}</select></label>
+      <label>${tr('recMonth')}<input type="month" name="month" value="${t.month}"></label></div>
+    <label>${tr('relLabel')}</label>
+    <div class="rel">${others.map(o=>`<label class="chk"><input type="checkbox" name="rel" value="${o.id}" ${t.related.includes(o.id)?'checked':''}><span class="dtag">${esc(L(o.dept))}</span>${esc(tx(o,'title'))}</label>`).join('')||`<span class="empty">${tr('noOthers')}</span>`}</div>
+    ${bi('note',t,tr('memo'),true)}
+    ${t.updBy?`<p class="note-s" style="margin:0">${esc(tr('lastEdit',t.updBy,fmtStamp(t.updAt)))}</p>`:''}
+    ${formEnd('delTask',id)}</form>`,fd=>{
+      const start=fd.get('start'),end=fd.get('end');
+      if(start&&end&&end<start){alert(tr('badDates'));return false}
+      const v={...biRead(fd,t,'title'),...biRead(fd,t,'note'),dept:fd.get('dept'),status:fd.get('status'),start,end,project:fd.get('project'),month:fd.get('month')||ui.month,related:fd.getAll('rel')};
+      if(!v.title&&!v.title_en){alert(tr('needName'));return false}
+      let task=t;
+      if(!id){task={...t,...v,id:uid(),seq:Date.now()};data.tasks.push(task)}else Object.assign(task,v);
+      others.forEach(o=>{const should=task.related.includes(o.id),has=o.related.includes(task.id);
+        if(should&&!has)o.related.push(task.id);if(!should&&has)o.related=o.related.filter(r=>r!==task.id)});
+    });
+}
+function delTask(id){
+  if(!confirm(tr('confirmDelTask')))return;
+  data.tasks=data.tasks.filter(t=>t.id!==id);
+  data.tasks.forEach(t=>t.related=t.related.filter(r=>r!==id));
+  D.close();save();
+}
+function openEvent(id,preset={}){
+  const e=id?data.events.find(x=>x.id===id):{id:'',title:'',dept:allDepts().includes(ui.dept)?ui.dept:OFFICIAL,date:'',end:'',note:'',...preset};
+  dlg(`<h3>${id?tr('editEvent'):tr('newEvent')}</h3><form>
+    ${bi('title',e,tr('eventName'))}
+    <label>${tr('category')}<select name="dept">${deptOptions(e.dept,true)}</select></label>
+    <div class="row2"><label>${tr('date')}<input type="date" name="date" required value="${e.date}"></label><label>${tr('endMulti')}<input type="date" name="end" value="${e.end}"></label></div>
+    ${bi('note',e,tr('memo'),true)}
+    ${formEnd('delEvent',id)}</form>`,fd=>{
+      const v={...biRead(fd,e,'title'),...biRead(fd,e,'note'),dept:fd.get('dept'),date:fd.get('date'),end:fd.get('end')};
+      if(!v.title&&!v.title_en){alert(tr('needName'));return false}
+      if(v.end&&v.end<v.date){alert(tr('badDates'));return false}
+      if(id)Object.assign(e,v);else data.events.push({id:uid(),...v});
+    });
+}
+function openProject(id){
+  const p=id?data.projects.find(x=>x.id===id):{id:'',name:'',color:'#2f4b7c',desc:'',priority:'보통',order:Date.now()};
+  dlg(`<h3>${id?tr('editProject'):tr('newProject')}</h3><form>
+    ${bi('name',p,tr('projectName'))}
+    ${bi('desc',p,tr('desc'),true)}
+    <div class="row2"><label>${tr('priority')}<select name="priority">${prioOpts(p.priority)}</select></label>
+    <label>${tr('color')}<input type="color" name="color" value="${p.color}" style="height:40px;padding:2px"></label></div>
+    ${formEnd('delProject',id)}</form>`,fd=>{
+      const v={...biRead(fd,p,'name'),...biRead(fd,p,'desc'),color:fd.get('color'),priority:fd.get('priority')};
+      if(!v.name&&!v.name_en){alert(tr('needName'));return false}
+      if(id){if(v.priority!==p.priority)p.order=Date.now();Object.assign(p,v)}else data.projects.push({id:uid(),order:Date.now(),...v});
+    });
+}
+function openSlogan(){
+  dlg(`<h3>${tr('sloganH',monthLabel(ui.month))}</h3><form>
+    ${bi('s',{s:data.slogans[ui.month],s_en:data.slogansEn[ui.month]},tr('slogan'),true)}
+    ${formEnd()}</form>`,fd=>{const m=ui.month,r=biRead(fd,{s:data.slogans[m],s_en:data.slogansEn[m]},'s');
+      if(r.s)data.slogans[m]=r.s;else delete data.slogans[m];if(r.s_en)data.slogansEn[m]=r.s_en;else delete data.slogansEn[m]});
+}
+function openSettings(){
+  D.dataset.kind='settings';
+  const old=localOld();
+  D.innerHTML=`<h3>${tr('settingsH')}</h3>
+   <h4 class="sh">${tr('myInfo')}</h4>
+   <div class="mrow" style="border:0;padding-top:0"><div class="mi"><b>${esc(me.name||'')}</b> <span class="dtag ${isAdmin()?'off':''}">${tr('role_'+(me.role||'member'))}</span>
+     <div class="t-meta"><span>${esc(me.loginId||'')}</span>${me.dept?`<span>${esc(L(me.dept))}</span>`:''}</div></div>
+     <div class="mb"><button type="button" data-act="logout">${tr('logout')}</button></div></div>
+   <details class="sub"><summary>${tr('changePw')}</summary>
+     <form id="pwform" style="margin-top:8px"><div class="row2"><label>${tr('curPw')}<input type="password" name="cur" autocomplete="current-password" required></label>
+     <label>${tr('newPw')} <small>${tr('pwRule')}</small><input type="password" name="nw" autocomplete="new-password" required></label></div>
+     <p class="g-err" id="pwerr" hidden></p><div class="actions" style="margin-top:0"><span class="grow"></span><button class="primary">${tr('save')}</button></div></form>
+   </details>
+   <hr class="hr">
+   <div class="lang-row"><span>${tr('language')}</span>
+     <div class="seg"><button type="button" class="${lang==='ko'?'on':''}" data-act="lang" data-l="ko">한국어</button><button type="button" class="${lang==='en'?'on':''}" data-act="lang" data-l="en">English</button></div>
+   </div>
+   <label class="chk" style="margin-top:12px"><input type="checkbox" id="autotr" ${autoTr?'checked':''}> ${tr('autoTr')}</label>
+   <p class="note-s">${tr('autoTrNote')}</p>
+   <hr class="hr">
+   <h4 class="sh">${tr('dataH')}</h4>
+   <div class="actions" style="margin-top:0"><button type="button" data-act="export">${tr('exportJ')}</button>
+     ${isAdmin()?`<label class="btnlike">${tr('importJ')}<input type="file" id="imp" accept=".json,application/json" hidden></label>`:''}
+     ${isAdmin()&&old?`<button type="button" data-act="uploadLocal">${tr('uploadLocal',old.tasks.length)}</button>`:''}</div>
+   <div class="actions"><span class="grow"></span><button type="button" data-act="close">${tr('close')}</button></div>`;
+  if(!D.open)D.showModal();
+  $('#pwform').addEventListener('submit',async e=>{
+    e.preventDefault();const fd=new FormData(e.target),err=$('#pwerr');err.hidden=true;
+    const nw=fd.get('nw');
+    try{
+      if(nw.length<6)throw {msg:tr('ePw')};
+      const u=auth.currentUser;
+      await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,fd.get('cur')));
+      await u.updatePassword(nw);
+      e.target.reset();alert(tr('pwChanged'));
+    }catch(x){err.textContent=x.msg||authErr(x);err.hidden=false}
+  });
+}
+function carryOver(){
+  const nm=shiftMonth(ui.month,1);
+  const src=data.tasks.filter(t=>t.month===ui.month&&['시작 전','진행 중','차후'].includes(t.status)&&!data.tasks.some(x=>x.month===nm&&x.from===t.id));
+  if(!src.length){alert(tr('noCarry'));return}
+  if(!confirm(tr('confirmCarry',src.length,monthLabel(nm))))return;
+  const map={};src.forEach(t=>map[t.id]=uid());
+  src.forEach((t,i)=>data.tasks.push({...t,id:map[t.id],seq:Date.now()+i,from:t.id,month:nm,related:t.related.filter(r=>map[r]).map(r=>map[r])}));
+  ui.month=nm;save();
+}
+
+/* ========== 이벤트 ========== */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  const a=el.dataset.act,id=el.dataset.id;
+  switch(a){
+    case 'month':ui.month=el.dataset.m;render();break;
+    case 'hist':ui.hist=!ui.hist;render();break;
+    case 'prevM':ui.month=shiftMonth(ui.month,-1);render();break;
+    case 'nextM':ui.month=shiftMonth(ui.month,1);render();break;
+    case 'dept':ui.dept=el.dataset.d;render();break;
+    case 'lang':setLang(el.dataset.l);render();openSettings();break;
+    case 'glang':setLang(el.dataset.l);showScreen($('#gate').dataset.screen||'login');break;
+    case 'gmode':gateMode=el.dataset.m;gateErr='';gateMsg='';showScreen('login');break;
+    case 'logout':if(D.open)D.close();auth.signOut();break;
+    case 'members':openMembers();break;
+    case 'mApprove':case 'mReject':case 'mSuspend':case 'mAdmin':case 'mUnadmin':case 'mRemove':memberAction(a,id);break;
+    case 'uploadLocal':{const o=localOld();if(o&&(Store.isEmpty()||confirm(tr('confirmImport')))){if(D.open)D.close();importData(o)}break}
+    case 'startEmpty':ui.emptyOk=true;render();break;
+    case 'pstar':{const p=data.projects.find(x=>x.id===id);p.starred=!p.starred;save();break}
+    case 'view':ui.view=el.dataset.v;render();break;
+    case 'stf':ui.stf=el.dataset.s;renderProjects();break;
+    case 'pinfo':ui.info=ui.info||{};ui.info[el.dataset.k]=!ui.info[el.dataset.k];renderProjects();break;
+    case 'pfold':ui.fold[el.dataset.k]=!ui.fold[el.dataset.k];renderProjects();break;
+    case 'pmove':{const p=data.projects.find(x=>x.id===id),same=sortedProjects().filter(x=>x.priority===p.priority),i=same.indexOf(p),o=same[i+Number(el.dataset.dir)];if(o){same.forEach((x,k)=>x.order=k);[p.order,o.order]=[o.order,p.order];save()}break}
+    case 'slogan':openSlogan();break;
+    case 'addTask':openTask(null,el.dataset.project?{project:el.dataset.project}:{});break;
+    case 'editTask':openTask(id);break;
+    case 'delTask':delTask(id);break;
+    case 'addEvent':openEvent(null,{date:el.dataset.date});break;
+    case 'editEvent':openEvent(id);break;
+    case 'delEvent':if(confirm(tr('confirmDelEvent'))){data.events=data.events.filter(x=>x.id!==id);D.close();save()}break;
+    case 'addProject':openProject();break;
+    case 'editProject':openProject(id);break;
+    case 'delProject':if(confirm(tr('confirmDelProject'))){data.projects=data.projects.filter(p=>p.id!==id);data.tasks.forEach(t=>{if(t.project===id)t.project=''});D.close();save()}break;
+    case 'carry':carryOver();break;
+    case 'settings':openSettings();break;
+    case 'close':D.close();break;
+    case 'expand':el.closest('.day').classList.add('expanded');break;
+    case 'export':{const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const l=document.createElement('a');l.href=u;l.download='data.json';l.click();setTimeout(()=>URL.revokeObjectURL(u),1000);break}
+  }
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.matches('select.prio')){const p=data.projects.find(x=>x.id===t.dataset.id);if(p){p.priority=t.value;p.order=Date.now();save()}}
+  else if(t.matches('select.st')){const task=data.tasks.find(x=>x.id===t.dataset.id);if(task){task.status=t.value;save()}}
+  else if(t.id==='autotr'){autoTr=t.checked;lsSet('wm_autotr',autoTr);trStop=false;render()}
+  else if(t.matches('input[data-k]')){ui[t.dataset.k]=t.checked;renderCalendar()}
+  else if(t.id==='imp'&&t.files[0]){
+    const r=new FileReader();
+    r.onload=()=>{let d;try{d=JSON.parse(r.result);if(!Array.isArray(d.tasks))throw 0}catch(err){alert(tr('badJson'));return}
+      if(!isAdmin()){alert(tr('importAdminOnly'));return}
+      if(Store.isEmpty()||confirm(tr('confirmImport'))){if(D.open)D.close();importData(d)}};t.value='';
+    r.readAsText(t.files[0]);
+  }
+});
+document.addEventListener('toggle',e=>{if(e.target.matches&&e.target.matches('details[data-k]'))ui[e.target.dataset.k]=e.target.open},true);
+function onSearch(){const q=$('#q');ui.q=q.value;renderProjects();const n=$('#q');n.focus();n.setSelectionRange(n.value.length,n.value.length)}
+document.addEventListener('input',e=>{if(e.target.id==='q'&&!e.isComposing)onSearch()});
+document.addEventListener('compositionend',e=>{if(e.target.id==='q')onSearch()});
+
+document.addEventListener('submit',e=>{if(e.target.matches('#gform')){e.preventDefault();gateSubmit(e.target)}});
+startAuth();
+</script>
+</body>
+</html>

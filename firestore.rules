@@ -1,0 +1,62 @@
+rules_version = '2';
+
+// Swiss Church 업무 정리 — Firestore 보안 규칙
+// · 로그인하고 관리자 승인(status == 'approved')을 받은 사람만 업무 데이터를 읽고 쓸 수 있습니다.
+// · 가입 신청은 누구나 할 수 있지만, 스스로 승인하거나 관리자가 될 수는 없습니다.
+// · 승인·거절·관리자 지정은 관리자(role == 'admin')만 할 수 있습니다.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function profilePath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+    function approved() {
+      return signedIn() && exists(profilePath()) && get(profilePath()).data.status == 'approved';
+    }
+    function isAdmin() {
+      return approved() && get(profilePath()).data.role == 'admin';
+    }
+
+    // 회원 정보 (가입 신청 · 승인 상태)
+    match /users/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+
+      // 본인 신청서만, 반드시 '대기 · 일반 회원' 상태로, 아이디는 로그인 계정과 같아야 함
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['loginId', 'name', 'dept', 'status', 'role', 'createdAt'])
+        && request.resource.data.status == 'pending'
+        && request.resource.data.role == 'member'
+        && request.resource.data.loginId is string
+        && request.resource.data.loginId + '@users.swisschurch.app' == request.auth.token.email
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 50;
+
+      // 관리자는 모두 변경 가능, 본인은 이름·부서만 변경 가능
+      allow update: if isAdmin()
+        || (signedIn() && request.auth.uid == uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'dept']));
+
+      allow delete: if isAdmin();
+    }
+
+    // 업무 데이터 — 승인된 사람만
+    match /tasks/{id} {
+      allow read, write: if approved();
+    }
+    match /projects/{id} {
+      allow read, write: if approved();
+    }
+    match /events/{id} {
+      allow read, write: if approved();
+    }
+    match /meta/{id} {
+      allow read, write: if approved();
+    }
+  }
+}
