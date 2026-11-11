@@ -37,10 +37,11 @@ service cloud.firestore {
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 50;
 
-      // 관리자는 모두 변경 가능, 본인은 이름·부서만 변경 가능
+      // 관리자는 모두 변경 가능, 본인은 이름·부서·마지막 접속 시간만 변경 가능
       allow update: if isAdmin()
         || (signedIn() && request.auth.uid == uid
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'dept']));
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'dept', 'lastSeen'])
+            && (!('lastSeen' in request.resource.data) || request.resource.data.lastSeen is int));
 
       allow delete: if isAdmin();
     }

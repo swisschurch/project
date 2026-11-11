@@ -211,6 +211,8 @@ label.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-si
 .hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 .mrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);flex-wrap:wrap}
 .mi{flex:1;min-width:160px}
+.seen::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--line);margin-right:5px;vertical-align:1px}
+.seen.on::before{background:var(--done)}
 .mb{display:flex;gap:6px;flex-wrap:wrap}
 .mb button.primary{border-color:var(--accent)}
 .empty-box{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
@@ -307,7 +309,7 @@ const I18N={
   setupH:'Firebase 연결이 필요합니다',setupP:'index.html 맨 위의 FIREBASE_CONFIG에 Firebase 웹 앱 설정값을 넣어야 합니다. 저장소 README의 안내를 따라 주세요.',
   eId:'아이디는 영문 소문자·숫자·마침표·밑줄·하이픈으로 3~20자여야 합니다.',ePw:'비밀번호는 6자 이상이어야 합니다.',ePw2:'비밀번호 확인이 일치하지 않습니다.',eName:'이름을 입력하세요.',
   eLogin:'아이디 또는 비밀번호가 맞지 않습니다.',eTaken:'이미 사용 중인 아이디입니다.',eMany:'시도가 너무 많습니다. 잠시 후 다시 시도하세요.',eNet:'네트워크에 연결할 수 없습니다.',eGeneric:c=>`오류가 발생했습니다 (${c})`,
-  members:'회원 관리',membersH:'회원 관리',mPending:'승인 대기',mApproved:'승인됨',mRejected:'거절·중지',mNone:'해당 회원이 없습니다.',
+  members:'회원 관리',lastSeen:'마지막 접속',never:'기록 없음',joined:'신청',agoNow:'방금',agoMin:n=>`${n}분 전`,agoHour:n=>`${n}시간 전`,agoDay:n=>`${n}일 전`,membersH:'회원 관리',mPending:'승인 대기',mApproved:'승인됨',mRejected:'거절·중지',mNone:'해당 회원이 없습니다.',
   approve:'승인',reject:'거절',suspend:'사용 중지',reapprove:'다시 승인',makeAdmin:'관리자 지정',unAdmin:'관리자 해제',removeReq:'신청 삭제',adminTag:'관리자',meTag:'나',
   confirmSuspend:n=>`${n} 님의 사용을 중지할까요?`,confirmUnadmin:n=>`${n} 님의 관리자 권한을 해제할까요?`,confirmRemove:n=>`${n} 님의 신청 기록을 삭제할까요?`,
   myInfo:'내 정보',role_admin:'관리자',role_member:'회원',changePw:'비밀번호 변경',curPw:'현재 비밀번호',newPw:'새 비밀번호',pwChanged:'비밀번호를 변경했습니다.',
@@ -349,7 +351,7 @@ const I18N={
   setupH:'Firebase connection needed',setupP:'Fill in FIREBASE_CONFIG at the top of index.html with your Firebase web app settings. See the repository README.',
   eId:'User ID must be 3–20 characters: lowercase letters, digits, period, underscore or hyphen.',ePw:'Password must be at least 6 characters.',ePw2:'Passwords do not match.',eName:'Please enter your name.',
   eLogin:'Wrong user ID or password.',eTaken:'That user ID is already taken.',eMany:'Too many attempts. Please try again later.',eNet:'Cannot reach the network.',eGeneric:c=>`Something went wrong (${c})`,
-  members:'Members',membersH:'Members',mPending:'Pending',mApproved:'Approved',mRejected:'Rejected / suspended',mNone:'No members here.',
+  members:'Members',lastSeen:'Last seen',never:'never',joined:'Requested',agoNow:'just now',agoMin:n=>`${n} min ago`,agoHour:n=>`${n} h ago`,agoDay:n=>`${n} d ago`,membersH:'Members',mPending:'Pending',mApproved:'Approved',mRejected:'Rejected / suspended',mNone:'No members here.',
   approve:'Approve',reject:'Reject',suspend:'Suspend',reapprove:'Approve again',makeAdmin:'Make admin',unAdmin:'Remove admin',removeReq:'Delete request',adminTag:'Admin',meTag:'Me',
   confirmSuspend:n=>`Suspend ${n}?`,confirmUnadmin:n=>`Remove admin rights from ${n}?`,confirmRemove:n=>`Delete the request record for ${n}?`,
   myInfo:'My account',role_admin:'Admin',role_member:'Member',changePw:'Change password',curPw:'Current password',newPw:'New password',pwChanged:'Password changed.',
@@ -494,6 +496,10 @@ const defDept=()=>allDepts().includes(ui.dept)?ui.dept:'일반';
 const statusOpts=sel=>STATUSES.map(s=>`<option value="${s}" ${s===sel?'selected':''}>${L(s)}</option>`).join('');
 const prioOpts=sel=>PRIOS.map(x=>`<option value="${x}" ${x===sel?'selected':''}>${L(x)}</option>`).join('');
 const isAdmin=()=>!!me&&me.status==='approved'&&me.role==='admin';
+// "방금 / 5분 전 / 3시간 전 / 2일 전", 일주일 넘으면 날짜
+const ago=ms=>{const m=Math.floor((Date.now()-ms)/60000);
+  if(m<2)return tr('agoNow');if(m<60)return tr('agoMin',m);const h=Math.floor(m/60);if(h<24)return tr('agoHour',h);
+  const d=Math.floor(h/24);return d<7?tr('agoDay',d):fmtStamp(ms)};
 const fmtStamp=ms=>{const d=new Date(ms);return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
 
 function save(){Store.commit();render()}
@@ -676,6 +682,7 @@ function startAuth(){
     meUnsub=db.collection('users').doc(u.uid).onSnapshot(s=>{
       if(!s.exists){me={uid:u.uid,loginId:fromEmail(u.email),status:'missing'};if(!signingUp)showScreen('missing');return}
       const wasApproved=me&&me.status==='approved';
+      touchSeen(u.uid,s.data().lastSeen);
       me={uid:u.uid,...s.data()};
       if(me.status==='approved'){
         if(!wasApproved){Store.reset();data=emptyData();Store.listen()}
@@ -688,6 +695,17 @@ function startAuth(){
     },e=>{console.error(e);gateErr=authErr(e);showScreen('login')});
   });
 }
+let seenAt=0;
+function touchSeen(uid,last){
+  const now=Date.now();
+  if(document.hidden||now-Math.max(seenAt,last||0)<5*60000)return;
+  seenAt=now;
+  db.collection('users').doc(uid).update({lastSeen:now}).catch(e=>console.warn('lastSeen',e.code||e));
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&auth&&auth.currentUser&&me)touchSeen(auth.currentUser.uid,me.lastSeen)});
+setInterval(()=>{if(auth&&auth.currentUser&&me)touchSeen(auth.currentUser.uid,me.lastSeen)},60000);
+// 접속 시간 표시가 "n분 전"으로 계속 갱신되도록
+setInterval(()=>{if(D.open&&D.dataset.kind==='members')openMembers()},60000);
 function watchMembers(){
   if(isAdmin()){
     if(!membersUnsub)membersUnsub=db.collection('users').onSnapshot(qs=>{
@@ -712,7 +730,8 @@ function openMembers(){
         else if(st==='approved'&&!self)btns=(m.role==='admin'?`<button class="mini" data-act="mUnadmin" data-id="${m.uid}">${tr('unAdmin')}</button>`:`<button class="mini" data-act="mAdmin" data-id="${m.uid}">${tr('makeAdmin')}</button>`)+`<button class="mini danger" data-act="mSuspend" data-id="${m.uid}">${tr('suspend')}</button>`;
         else if(st==='rejected')btns=`<button class="mini" data-act="mApprove" data-id="${m.uid}">${tr('reapprove')}</button><button class="mini danger" data-act="mRemove" data-id="${m.uid}">${tr('removeReq')}</button>`;
         return `<div class="mrow"><div class="mi"><b>${nm}</b>${m.role==='admin'?` <span class="dtag off">${tr('adminTag')}</span>`:''}${self?` <span class="dtag">${tr('meTag')}</span>`:''}
-          <div class="t-meta"><span>${esc(m.loginId||'')}</span>${m.dept?`<span>${esc(L(m.dept))}</span>`:''}${m.createdAt?`<span>${fmtStamp(m.createdAt)}</span>`:''}</div></div>
+          <div class="t-meta"><span>${esc(m.loginId||'')}</span>${m.dept?`<span>${esc(L(m.dept))}</span>`:''}</div>
+          <div class="t-meta"><span class="seen ${m.lastSeen&&Date.now()-m.lastSeen<6*60000?'on':''}" title="${m.lastSeen?fmtStamp(m.lastSeen):''}">${tr('lastSeen')}: ${m.lastSeen?ago(m.lastSeen):tr('never')}</span>${m.createdAt?`<span>${tr('joined')}: ${fmtStamp(m.createdAt)}</span>`:''}</div></div>
           <div class="mb">${btns}</div></div>`}).join(''):`<p class="empty">${tr('mNone')}</p>`}`;
   };
   D.innerHTML=`<h3>${tr('membersH')}</h3>${grp('pending',tr('mPending'))}<hr class="hr">${grp('approved',tr('mApproved'))}<hr class="hr">${grp('rejected',tr('mRejected'))}
