@@ -106,6 +106,13 @@ details[open].sec>summary{margin-bottom:6px}
 .proj{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:12px;padding:14px 14px;min-width:0;display:flex;flex-direction:column}
 .proj .fill{flex:1;min-height:10px}
 .proj .task{gap:6px}
+.grip{cursor:grab;color:var(--muted);opacity:.35;font-size:15px;line-height:1;padding:6px 2px;touch-action:none;user-select:none;flex-shrink:0;align-self:center}
+.task:hover .grip{opacity:.9}
+@media (hover:none){.grip{opacity:.6}}
+.drag-ghost{opacity:.35;background:var(--soft)}
+.drag-chosen{background:var(--panel);box-shadow:0 6px 20px rgba(0,0,0,.12);border-radius:8px}
+.sortable-fallback{background:var(--panel);box-shadow:0 8px 24px rgba(0,0,0,.18);border-radius:8px;opacity:.95!important}
+body.dragging,body.dragging *{cursor:grabbing!important}
 .proj select.st{max-width:108px}
 .proj.none{border-top-style:dashed;border-top-color:var(--muted)}
 .proj-h{display:flex;align-items:center;gap:6px}
@@ -249,6 +256,7 @@ button:disabled{opacity:.6;cursor:default}
 <script src="https://cdn.jsdelivr.net/npm/firebase@13.1.0/firebase-app-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@13.1.0/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@13.1.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <script>
 /* ==========================================================
    Firebase 설정 — Firebase 콘솔 › 프로젝트 설정 › 내 앱(웹 앱)의
@@ -313,7 +321,7 @@ const I18N={
   unassigned:'프로젝트 미지정',unassignedHint:'업무 편집에서 프로젝트를 지정하면 해당 프로젝트로 옮겨집니다.',doneOf:(d,n,p)=>`${d}/${n} 완료 · ${p}%`,count:n=>`${n}건`,
   current:'현재 진행',noCurrent:'진행 중인 업무 없음',later:'차후 할 일',done:'완료',addTaskLine:'＋ 업무 추가',
   addProject:'＋ 프로젝트',addTask:'＋ 업무',search:'업무 검색',carry:'미완료 다음 달로 이월',carryTip:'시작 전·진행 중·차후 업무를 다음 달로 복사합니다',
-  infoTip:'눌러서 설명·진행률 보기',starHint:'★ 표시한 프로젝트가 모입니다. 프로젝트 이름 옆 ★을 눌러 추가·해제하세요.',starEmpty:'아직 중요 표시한 항목이 없습니다.',noProjects:'표시할 프로젝트가 없습니다.',
+  infoTip:'눌러서 설명·진행률 보기',dragTip:'끌어서 순서 바꾸기',starHint:'★ 표시한 프로젝트가 모입니다. 프로젝트 이름 옆 ★을 눌러 추가·해제하세요.',starEmpty:'아직 중요 표시한 항목이 없습니다.',noProjects:'표시할 프로젝트가 없습니다.',
   addEvent:'＋ 일정 추가',showOfficial:'교회 공식 일정',showDeptEv:'부서 일정',showTasks:'업무 기간',allDeptsShort:'모든 부서',calNote:x=>`${x} 표시 중 · 업무 막대 색 = 프로젝트`,
   weekdays:['일','월','화','수','목','금','토'],agenda:m=>`${m} 일정 목록`,noEvents:'등록된 일정이 없습니다. 날짜 칸을 눌러 추가하세요.',
   del:'삭제',cancel:'취소',save:'저장',close:'닫기',
@@ -355,7 +363,7 @@ const I18N={
   unassigned:'No project',unassignedHint:'Assign a project in the task editor to move a task there.',doneOf:(d,n,p)=>`${d}/${n} done · ${p}%`,count:n=>`${n} task${n===1?'':'s'}`,
   current:'Current',noCurrent:'No active tasks',later:'Later',done:'Done',addTaskLine:'＋ Add task',
   addProject:'＋ Project',addTask:'＋ Task',search:'Search tasks',carry:'Carry over to next month',carryTip:'Copies To do, In progress and Later tasks into next month',
-  infoTip:'Click to show description and progress',starHint:'Starred projects appear here. Click ★ next to a project name to add or remove it.',starEmpty:'Nothing starred yet.',noProjects:'No projects to show.',
+  infoTip:'Click to show description and progress',dragTip:'Drag to reorder',starHint:'Starred projects appear here. Click ★ next to a project name to add or remove it.',starEmpty:'Nothing starred yet.',noProjects:'No projects to show.',
   addEvent:'＋ Add event',showOfficial:'Church official',showDeptEv:'Department events',showTasks:'Task periods',allDeptsShort:'all departments',calNote:x=>`Showing ${x} · bar color = project`,
   weekdays:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],agenda:m=>`${m} events`,noEvents:'No events yet. Click a date to add one.',
   del:'Delete',cancel:'Cancel',save:'Save',close:'Close',
@@ -730,6 +738,7 @@ function importData(d){
 
 /* ========== 렌더링 ========== */
 function render(){
+  if(ui.dragging){ui.renderLater=true;return}
   if(!me||me.status!=='approved')return;
   const ae=document.activeElement,fid=ae&&ae.id==='q',sel=fid?[ae.selectionStart,ae.selectionEnd]:null;
   renderHeader();renderHistory();renderSide();renderTabs();({calendar:renderCalendar,projects:renderProjects})[ui.view]();
@@ -778,7 +787,8 @@ function row(t,showProj){
   const per=period(t);
   const late=t.end&&t.end<todayStr()&&!['완료','반려','차후'].includes(t.status);
   const rel=t.related.map(r=>data.tasks.find(x=>x.id===r)).filter(Boolean);
-  return `<div class="task s-${SCLS[t.status]}">
+  return `<div class="task s-${SCLS[t.status]}" data-id="${t.id}">
+    <span class="grip" title="${tr('dragTip')}" aria-hidden="true">⠿</span>
     <div class="t-body" data-act="editTask" data-id="${t.id}">
       <div class="t-title">${esc(tx(t,'title'))}</div>
       <div class="t-meta">
@@ -793,7 +803,8 @@ function row(t,showProj){
   </div>`;
 }
 const byDept=a=>{const o=allDepts();return [...a].sort((x,y)=>o.indexOf(x.dept)-o.indexOf(y.dept))};
-const rows=a=>a.length?byDept(a).map(t=>row(t)).join(''):'';
+const bySeq=a=>[...a].sort((x,y)=>(x.seq||0)-(y.seq||0));
+const rows=(a,list)=>a.length?`<div class="tlist" data-list="${list}">${bySeq(a).map(t=>row(t)).join('')}</div>`:'';
 const sortedProjects=()=>[...data.projects].sort((a,b)=>PRIOS.indexOf(a.priority)-PRIOS.indexOf(b.priority)||a.order-b.order);
 
 function projBlock(p,ts){
@@ -827,14 +838,34 @@ function projBlock(p,ts){
     </div>`;
   const body=folded?'':`
     <div class="sub-h">${tr('current')} <span class="badge">${cur.length}</span></div>
-    ${rows(cur)||`<p class="empty">${tr('noCurrent')}</p>`}
-    ${later.length?`<details class="sub" data-k="later:${key}" ${ui['later:'+key]?'open':''}><summary>${tr('later')} <span class="badge">${later.length}</span></summary>${rows(later)}</details>`:''}
-    ${done.length?`<details class="sub" data-k="done:${key}" ${ui['done:'+key]?'open':''}><summary>${tr('done')} <span class="badge">${done.length}</span></summary>${rows(done)}</details>`:''}
+    ${rows(cur,'cur:'+key)||`<p class="empty">${tr('noCurrent')}</p>`}
+    ${later.length?`<details class="sub" data-k="later:${key}" ${ui['later:'+key]?'open':''}><summary>${tr('later')} <span class="badge">${later.length}</span></summary>${rows(later,'later:'+key)}</details>`:''}
+    ${done.length?`<details class="sub" data-k="done:${key}" ${ui['done:'+key]?'open':''}><summary>${tr('done')} <span class="badge">${done.length}</span></summary>${rows(done,'done:'+key)}</details>`:''}
     <div class="fill"></div>
     <button class="addline" data-act="addTask" ${p?`data-project="${p.id}"`:''}>${tr('addTaskLine')}</button>`;
   return `<section class="proj ${p?'':'none'}" style="--c:${p?p.color:'var(--line)'}">${head}${meta}${body}</section>`;
 }
 
+function initDrag(){
+  if(typeof Sortable==='undefined')return;
+  document.querySelectorAll('.tlist').forEach(el=>Sortable.create(el,{
+    handle:'.grip',draggable:'.task',animation:150,ghostClass:'drag-ghost',chosenClass:'drag-chosen',
+    forceFallback:true,fallbackOnBody:true,delayOnTouchOnly:true,delay:120,
+    onStart(){ui.dragging=true},
+    onEnd(ev){
+      ui.dragging=false;
+      if(ev.oldIndex!==ev.newIndex){
+        const ids=[...el.querySelectorAll(':scope > .task')].map(r=>r.dataset.id);
+        const ts=ids.map(id=>data.tasks.find(t=>t.id===id)).filter(Boolean);
+        const seqs=ts.map(t=>t.seq||0).sort((a,b)=>a-b);
+        for(let i=1;i<seqs.length;i++)if(seqs[i]<=seqs[i-1])seqs[i]=seqs[i-1]+1;
+        ts.forEach((t,i)=>t.seq=seqs[i]);
+        data.tasks.sort((a,b)=>(a.seq||0)-(b.seq||0));
+        ui.renderLater=false;save();
+      }else if(ui.renderLater){ui.renderLater=false;render()}
+    }
+  }));
+}
 function renderProjects(){
   const q=ui.q.trim().toLowerCase();
   const list=data.tasks.filter(t=>t.month===ui.month&&inDept(t)&&(!q||[t.title,t.title_en,t.note,t.note_en,tx(t,'title')].join(' ').toLowerCase().includes(q)));
@@ -859,6 +890,7 @@ function renderProjects(){
       <button data-act="startEmpty">${tr('startEmpty')}</button></div></section>`:''}
     ${ui.dept===STAR?`<p class="star-hint">${tr('starHint')}</p>`:''}
     ${blocks?`<div class="pboard">${blocks}</div>`:`<p class="empty">${ui.dept===STAR?tr('starEmpty'):tr('noProjects')}</p>`}`;
+  initDrag();
 }
 
 function renderCalendar(){
