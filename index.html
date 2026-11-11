@@ -106,8 +106,9 @@ details[open].sec>summary{margin-bottom:6px}
 .proj{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:12px;padding:14px 14px;min-width:0;display:flex;flex-direction:column}
 .proj .fill{flex:1;min-height:10px}
 .proj .task{gap:6px}
+.pgrip{font-size:17px;padding:4px 2px;margin-right:-2px}
 .grip{cursor:grab;color:var(--muted);opacity:.35;font-size:15px;line-height:1;padding:6px 2px;touch-action:none;user-select:none;flex-shrink:0;align-self:center}
-.task:hover .grip{opacity:.9}
+.task:hover .grip,.proj-h:hover .pgrip{opacity:.9}
 @media (hover:none){.grip{opacity:.6}}
 .drag-ghost{opacity:.35;background:var(--soft)}
 .drag-chosen{background:var(--panel);box-shadow:0 6px 20px rgba(0,0,0,.12);border-radius:8px}
@@ -816,13 +817,11 @@ function projBlock(p,ts){
   const folded=ui.fold[key],info=!!(ui.info||{})[key];
   let head;
   if(p){
-    const same=sortedProjects().filter(x=>x.priority===p.priority),i=same.indexOf(p);
     head=`<div class="proj-h">
+      <span class="grip pgrip" title="${tr('dragTip')}" aria-hidden="true">⠿</span>
       <select class="prio pr-${PCLS[p.priority]}" data-id="${p.id}" aria-label="${tr('priority')}">${prioOpts(p.priority)}</select>
       <button class="tstar pstar ${p.starred?'on':''}" data-act="pstar" data-id="${p.id}" title="${tr('starTip')}">★</button>
       <span class="grow"></span>
-      <button class="mini" data-act="pmove" data-id="${p.id}" data-dir="-1" ${i<=0?'disabled':''} title="${tr('up')}">▲</button>
-      <button class="mini" data-act="pmove" data-id="${p.id}" data-dir="1" ${i>=same.length-1?'disabled':''} title="${tr('down')}">▼</button>
       <button class="mini" data-act="editProject" data-id="${p.id}">${tr('edit')}</button>
       <button class="mini" data-act="pfold" data-k="${key}">${folded?tr('unfold'):tr('fold')}</button>
     </div>
@@ -843,11 +842,32 @@ function projBlock(p,ts){
     ${done.length?`<details class="sub" data-k="done:${key}" ${ui['done:'+key]?'open':''}><summary>${tr('done')} <span class="badge">${done.length}</span></summary>${rows(done,'done:'+key)}</details>`:''}
     <div class="fill"></div>
     <button class="addline" data-act="addTask" ${p?`data-project="${p.id}"`:''}>${tr('addTaskLine')}</button>`;
-  return `<section class="proj ${p?'':'none'}" style="--c:${p?p.color:'var(--line)'}">${head}${meta}${body}</section>`;
+  return `<section class="proj ${p?'dr':'none'}" ${p?`data-pid="${p.id}"`:''} style="--c:${p?p.color:'var(--line)'}">${head}${meta}${body}</section>`;
 }
 
 function initDrag(){
   if(typeof Sortable==='undefined')return;
+  const board=document.querySelector('.pboard');
+  if(board)Sortable.create(board,{
+    handle:'.pgrip',draggable:'.proj.dr',animation:180,ghostClass:'drag-ghost',chosenClass:'drag-chosen',
+    forceFallback:true,fallbackOnBody:true,delayOnTouchOnly:true,delay:120,
+    onMove:ev=>!(ev.related&&ev.related.classList.contains('none')&&!ev.willInsertAfter),
+    onStart(){ui.dragging=true},
+    onEnd(ev){
+      ui.dragging=false;
+      if(ev.oldIndex===ev.newIndex){if(ui.renderLater){ui.renderLater=false;render()}return}
+      const ids=[...board.querySelectorAll(':scope > .proj.dr')].map(e=>e.dataset.pid);
+      const ps=ids.map(id=>data.projects.find(p=>p.id===id)).filter(Boolean);
+      const moved=data.projects.find(p=>p.id===ev.item.dataset.pid),i=ps.indexOf(moved);
+      // 앞뒤 카드 중 같은 우선순위가 있으면 그대로, 없으면 바로 뒤(맨 끝이면 앞) 카드의 우선순위를 따름
+      const prev=ps[i-1],next=ps[i+1];
+      if(![prev,next].some(x=>x&&x.priority===moved.priority)){const nb=next||prev;if(nb)moved.priority=nb.priority}
+      const orders=ps.map(p=>p.order||0).sort((a,b)=>a-b);
+      for(let k=1;k<orders.length;k++)if(orders[k]<=orders[k-1])orders[k]=orders[k-1]+1;
+      ps.forEach((p,k)=>p.order=orders[k]);
+      ui.renderLater=false;save();
+    }
+  });
   document.querySelectorAll('.tlist').forEach(el=>Sortable.create(el,{
     handle:'.grip',draggable:'.task',animation:150,ghostClass:'drag-ghost',chosenClass:'drag-chosen',
     forceFallback:true,fallbackOnBody:true,delayOnTouchOnly:true,delay:120,
