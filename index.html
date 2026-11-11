@@ -110,6 +110,11 @@ details[open].sec>summary{margin-bottom:6px}
 .grip{cursor:grab;color:var(--muted);opacity:.35;font-size:15px;line-height:1;padding:6px 2px;touch-action:none;user-select:none;flex-shrink:0;align-self:center}
 .task:hover .grip,.proj-h:hover .pgrip{opacity:.9}
 @media (hover:none){.grip{opacity:.6}}
+.tlist{min-height:8px}
+.tl-empty{margin:6px 0;padding:10px;border:1px dashed transparent;border-radius:8px}
+.tlist:has(> .task) > .tl-empty{display:none}
+body.dragging .tl-empty{border-color:var(--line)}
+body.dragging .tlist{background:color-mix(in srgb,var(--accent) 3%,transparent);border-radius:8px}
 .drag-ghost{opacity:.35;background:var(--soft)}
 .drag-chosen{background:var(--panel);box-shadow:0 6px 20px rgba(0,0,0,.12);border-radius:8px}
 .sortable-fallback{background:var(--panel);box-shadow:0 8px 24px rgba(0,0,0,.18);border-radius:8px;opacity:.95!important}
@@ -856,7 +861,7 @@ function projBlock(p,ts){
     </div>`;
   const body=folded?'':`
     <div class="sub-h">${tr('current')} <span class="badge">${cur.length}</span></div>
-    ${rows(cur,'cur:'+key)||`<p class="empty">${tr('noCurrent')}</p>`}
+    <div class="tlist" data-list="cur:${key}">${bySeq(cur).map(t=>row(t)).join('')}<p class="empty tl-empty">${tr('noCurrent')}</p></div>
     ${later.length?`<details class="sub" data-k="later:${key}" ${ui['later:'+key]?'open':''}><summary>${tr('later')} <span class="badge">${later.length}</span></summary>${rows(later,'later:'+key)}</details>`:''}
     ${done.length?`<details class="sub" data-k="done:${key}" ${ui['done:'+key]?'open':''}><summary>${tr('done')} <span class="badge">${done.length}</span></summary>${rows(done,'done:'+key)}</details>`:''}
     <div class="fill"></div>
@@ -887,21 +892,36 @@ function initDrag(){
       ui.renderLater=false;save();
     }
   });
+  // 업무 끌기: 같은 칸 안 순서 변경 + 다른 프로젝트·다른 칸으로 이동
+  const reseq=list=>{
+    const ts=[...list.querySelectorAll(':scope > .task')].map(r=>data.tasks.find(t=>t.id===r.dataset.id)).filter(Boolean);
+    const seqs=ts.map(t=>t.seq||0).sort((a,b)=>a-b);
+    for(let i=1;i<seqs.length;i++)if(seqs[i]<=seqs[i-1])seqs[i]=seqs[i-1]+1;
+    ts.forEach((t,i)=>t.seq=seqs[i]);
+  };
   document.querySelectorAll('.tlist').forEach(el=>Sortable.create(el,{
-    handle:'.grip',draggable:'.task',animation:150,ghostClass:'drag-ghost',chosenClass:'drag-chosen',
-    forceFallback:true,fallbackOnBody:true,delayOnTouchOnly:true,delay:120,
-    onStart(){ui.dragging=true},
+    group:'tasks',handle:'.grip',draggable:'.task',animation:150,ghostClass:'drag-ghost',chosenClass:'drag-chosen',
+    forceFallback:true,fallbackOnBody:true,delayOnTouchOnly:true,delay:120,emptyInsertThreshold:24,
+    onStart(){ui.dragging=true;document.body.classList.add('dragging')},
     onEnd(ev){
-      ui.dragging=false;
-      if(ev.oldIndex!==ev.newIndex){
-        const ids=[...el.querySelectorAll(':scope > .task')].map(r=>r.dataset.id);
-        const ts=ids.map(id=>data.tasks.find(t=>t.id===id)).filter(Boolean);
-        const seqs=ts.map(t=>t.seq||0).sort((a,b)=>a-b);
-        for(let i=1;i<seqs.length;i++)if(seqs[i]<=seqs[i-1])seqs[i]=seqs[i-1]+1;
-        ts.forEach((t,i)=>t.seq=seqs[i]);
-        data.tasks.sort((a,b)=>(a.seq||0)-(b.seq||0));
-        ui.renderLater=false;save();
-      }else if(ui.renderLater){ui.renderLater=false;render()}
+      ui.dragging=false;document.body.classList.remove('dragging');
+      const moved=ev.from!==ev.to;
+      if(!moved&&ev.oldIndex===ev.newIndex){if(ui.renderLater){ui.renderLater=false;render()}return}
+      if(moved){
+        const t=data.tasks.find(x=>x.id===ev.item.dataset.id);
+        const [kind,key]=ev.to.dataset.list.split(':');
+        if(t){
+          t.project=key==='none'?'':key;
+          // 놓은 칸에 맞게 상태 조정: 완료 칸 → 완료, 차후 칸 → 차후, 현재 진행 칸 → (완료·차후였다면) 시작 전
+          if(kind==='done')t.status='완료';
+          else if(kind==='later')t.status='차후';
+          else if(['완료','차후'].includes(t.status))t.status='시작 전';
+        }
+        reseq(ev.from);
+      }
+      reseq(ev.to);
+      data.tasks.sort((a,b)=>(a.seq||0)-(b.seq||0));
+      ui.renderLater=false;save();
     }
   }));
 }
