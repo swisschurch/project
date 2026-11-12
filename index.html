@@ -23,7 +23,7 @@ header{display:flex;align-items:center;gap:16px;padding:14px 20px;background:var
 .month-nav{display:flex;align-items:center;gap:6px}
 .month-nav span{font-weight:700;min-width:96px;text-align:center}
 .month-nav button{padding:2px 10px}
-#slogan{flex:1;min-width:220px;cursor:pointer;padding:8px 14px;border-radius:10px;background:var(--soft);display:flex;gap:10px;align-items:baseline}
+#slogan{flex:1;min-width:220px;cursor:pointer;padding:8px 14px;border-radius:10px;background:var(--panel);display:flex;gap:10px;align-items:baseline}
 .sl-label{font-size:12px;color:var(--gold);font-weight:700;white-space:nowrap}
 .sl-text{font-weight:700;font-size:16px}
 .sl-empty{color:var(--muted)}
@@ -46,7 +46,13 @@ header{display:flex;align-items:center;gap:16px;padding:14px 20px;background:var
 .layout{display:grid;grid-template-columns:180px 1fr;gap:20px;padding:20px;max-width:1600px;margin:0 auto}
 main{min-width:0}
 aside{display:flex;flex-direction:column;gap:2px}
-.d-group{font-size:11px;color:var(--muted);margin:12px 8px 4px;font-weight:700}
+.d-group{display:flex;align-items:center;gap:6px;border:0;background:none;text-align:left;padding:8px;margin-top:6px;font-size:14px;font-weight:700;color:var(--ink);border-radius:8px}
+.d-group:hover{background:var(--soft)}
+.d-group i{font-style:normal;font-size:10px;color:var(--muted);transition:transform .15s;width:10px}
+.d-group.open i{transform:rotate(90deg)}
+.d-group span{margin-left:auto;font-size:12px;color:var(--muted);font-weight:400}
+.d-group.has:not(.open){color:var(--accent)}
+.d-sub{display:flex;flex-direction:column;gap:2px;padding-left:14px;margin-left:12px;border-left:1px solid var(--line)}
 .d-item{display:flex;align-items:center;gap:8px;border:0;background:none;text-align:left;padding:6px 8px}
 .d-item i{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .d-item span{margin-left:auto;font-size:12px;color:var(--muted)}
@@ -209,7 +215,8 @@ label.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-si
  #history{padding:8px 16px}
  .layout{grid-template-columns:1fr;padding:12px 16px;gap:10px}
  aside{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
- .d-group{display:none}
+ .d-group{white-space:nowrap;border:1px solid var(--line);border-radius:20px;padding:4px 10px;margin:0;flex-shrink:0;font-size:13px}
+ .d-sub{flex-direction:row;gap:4px;padding-left:0;margin-left:0;border-left:0}
  .d-item{white-space:nowrap;border:1px solid var(--line);border-radius:20px;padding:4px 10px;flex-shrink:0}
  .d-item span{margin-left:4px}
  .day{min-height:64px;padding:2px}
@@ -482,21 +489,21 @@ function biRead(fd,o,f){
 
 /* ========== 상태 ========== */
 const DEFAULT_DEPTS=[
-  {name:'24부서',items:['총무부','신학부','전도부','기획부','재정부','문화부','찬양부','국내선교부','내무부','HWPL IT','HWPL CH','제네바']},
+  {name:'24부서',items:['총무부','신학부','전도부','기획부','재정부','문화부','찬양부','국내선교부','내무부']},
   {name:'네 생물',items:['장년회','부녀회','청년회']},
-  {name:'공통',items:['일반','이탈리아','헝가리']}
+  {name:'공통',items:['일반','HWPL CH','HWPL IT','제네바','이탈리아','헝가리']}
 ];
 function emptyData(){return {deptGroups:JSON.parse(JSON.stringify(DEFAULT_DEPTS)),slogans:{},slogansEn:{},projects:[],tasks:[],events:[]}}
 // 저장된 부서 목록에 새로 추가된 기본 부서가 빠져 있으면 채워 넣음
+// 부서 구성은 코드의 기본 목록을 따르고, 저장된 목록에만 있는 부서(직접 추가한 것)는 그 그룹 끝에 유지
 function withDefaultDepts(groups){
-  const g=JSON.parse(JSON.stringify(groups&&groups.length?groups:DEFAULT_DEPTS));
-  // 이름이 바뀐 부서: HWPL → HWPL IT, HWPL CH
-  g.forEach(x=>{const i=x.items.indexOf('HWPL');if(i>=0)x.items.splice(i,1,...['HWPL IT','HWPL CH'].filter(n=>!g.some(y=>y.items.includes(n))))});
-  DEFAULT_DEPTS.forEach(dg=>{
-    let t=g.find(x=>x.name===dg.name);
-    if(!t){t={name:dg.name,items:[]};g.push(t)}
-    dg.items.forEach(it=>{if(!g.some(x=>x.items.includes(it)))t.items.push(it)});
-  });
+  const g=JSON.parse(JSON.stringify(DEFAULT_DEPTS));
+  const known=new Set(g.flatMap(x=>x.items).concat(['HWPL']));   // HWPL → HWPL IT · HWPL CH 로 나뉨
+  (groups||[]).forEach(sg=>(sg.items||[]).forEach(it=>{
+    if(known.has(it))return;known.add(it);
+    let t=g.find(x=>x.name===sg.name);if(!t){t={name:sg.name,items:[]};g.push(t)}
+    t.items.push(it);
+  }));
   return g;
 }
 function migrate(d){
@@ -511,7 +518,7 @@ let data=emptyData();
 let me=null;              // 로그인한 사람의 회원 정보
 let members=[];           // 관리자용 회원 목록
 let auth=null,db=null,meUnsub=null,membersUnsub=null,signingUp=false;
-const ui={month:todayYM(),dept:'전체',view:'projects',stf:'전체',q:'',fold:{},showOfficial:true,showDeptEv:true,showTasks:true};
+const ui={groups:(()=>{try{return JSON.parse(localStorage.getItem('wm_groups'))||{}}catch(e){return {}}})(),month:todayYM(),dept:'전체',view:'projects',stf:'전체',q:'',fold:{},showOfficial:true,showDeptEv:true,showTasks:true};
 const allDepts=()=>data.deptGroups.flatMap(g=>g.items);
 const STAR='__star__';
 const isStar=t=>!!(data.projects.find(p=>p.id===t.project)||{}).starred;
@@ -818,7 +825,10 @@ function renderSide(){
   <div class="d-sep"></div>
   <button class="d-item ${ui.dept==='전체'?'on':''}" data-act="dept" data-d="전체">${tr('allDepts')}<span>${open('전체')}</span></button>`;
   data.deptGroups.forEach(g=>{
-    h+=`<div class="d-group">${esc(L(g.name))}</div>`+g.items.map(d=>`<button class="d-item ${ui.dept===d?'on':''}" data-act="dept" data-d="${esc(d)}">${esc(L(d))}<span>${open(d)||''}</span></button>`).join('');
+    const n=g.items.reduce((a,d)=>a+open(d),0),has=g.items.includes(ui.dept);
+    const isOpen=ui.groups[g.name]??has;
+    h+=`<button class="d-group ${isOpen?'open':''} ${has?'has':''}" data-act="dgroup" data-g="${esc(g.name)}" aria-expanded="${isOpen}"><i>▸</i>${esc(L(g.name))}<span>${n||''}</span></button>`;
+    if(isOpen)h+=`<div class="d-sub">`+g.items.map(d=>`<button class="d-item ${ui.dept===d?'on':''}" data-act="dept" data-d="${esc(d)}">${esc(L(d))}<span>${open(d)||''}</span></button>`).join('')+`</div>`;
   });
   $('#side').innerHTML=h;
 }
@@ -1139,6 +1149,7 @@ document.addEventListener('click',e=>{
     case 'prevM':ui.month=shiftMonth(ui.month,-1);render();break;
     case 'nextM':ui.month=shiftMonth(ui.month,1);render();break;
     case 'dept':ui.dept=el.dataset.d;render();break;
+    case 'dgroup':{const g=el.dataset.g,cur=ui.groups[g]??el.classList.contains('open');ui.groups[g]=!cur;try{localStorage.setItem('wm_groups',JSON.stringify(ui.groups))}catch(e){}renderSide();break}
     case 'lang':setLang(el.dataset.l);render();openSettings();break;
     case 'glang':setLang(el.dataset.l);showScreen($('#gate').dataset.screen||'login');break;
     case 'gmode':gateMode=el.dataset.m;gateErr='';gateMsg='';showScreen('login');break;
