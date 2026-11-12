@@ -304,7 +304,7 @@ const EN_MAP={
   '24부서':'24 Departments','네 생물':'Four Living Creatures','공통':'Common',
   '총무부':'General Affairs','신학부':'Theology','전도부':'Evangelism','기획부':'Planning','재정부':'Finance',
   '문화부':'Culture','찬양부':'Worship','국내선교부':'Domestic Mission','내무부':'Internal Affairs',
-  'HWPL':'HWPL','제네바':'Geneva','장년회':"Men's Assoc.",'부녀회':"Women's Assoc.",'청년회':'Youth Assoc.','일반':'General','이탈리아':'Italy','헝가리':'Hungary'
+  'HWPL IT':'HWPL IT','HWPL CH':'HWPL CH','제네바':'Geneva','장년회':"Men's Assoc.",'부녀회':"Women's Assoc.",'청년회':'Youth Assoc.','일반':'General','이탈리아':'Italy','헝가리':'Hungary'
 };
 const L=v=>lang==='en'?(EN_MAP[v]||v):v;   // 상태·우선순위·부서명 표시용
 const mName=m=>lang==='en'?MONTHS_EN[m-1]:`${m}월`;
@@ -482,7 +482,7 @@ function biRead(fd,o,f){
 
 /* ========== 상태 ========== */
 const DEFAULT_DEPTS=[
-  {name:'24부서',items:['총무부','신학부','전도부','기획부','재정부','문화부','찬양부','국내선교부','내무부','HWPL','제네바']},
+  {name:'24부서',items:['총무부','신학부','전도부','기획부','재정부','문화부','찬양부','국내선교부','내무부','HWPL IT','HWPL CH','제네바']},
   {name:'네 생물',items:['장년회','부녀회','청년회']},
   {name:'공통',items:['일반','이탈리아','헝가리']}
 ];
@@ -490,6 +490,8 @@ function emptyData(){return {deptGroups:JSON.parse(JSON.stringify(DEFAULT_DEPTS)
 // 저장된 부서 목록에 새로 추가된 기본 부서가 빠져 있으면 채워 넣음
 function withDefaultDepts(groups){
   const g=JSON.parse(JSON.stringify(groups&&groups.length?groups:DEFAULT_DEPTS));
+  // 이름이 바뀐 부서: HWPL → HWPL IT, HWPL CH
+  g.forEach(x=>{const i=x.items.indexOf('HWPL');if(i>=0)x.items.splice(i,1,...['HWPL IT','HWPL CH'].filter(n=>!g.some(y=>y.items.includes(n))))});
   DEFAULT_DEPTS.forEach(dg=>{
     let t=g.find(x=>x.name===dg.name);
     if(!t){t={name:dg.name,items:[]};g.push(t)}
@@ -1012,7 +1014,7 @@ function dlg(html,onSubmit){
   const f=D.querySelector('form');
   if(f)f.addEventListener('submit',e=>{e.preventDefault();if(onSubmit(new FormData(f))!==false){D.close();save()}});
 }
-const deptOptions=(sel,official)=>(official?`<option value="${OFFICIAL}" ${sel===OFFICIAL?'selected':''}>${L(OFFICIAL)}</option>`:'')+data.deptGroups.map(g=>`<optgroup label="${esc(L(g.name))}">${g.items.map(d=>`<option value="${esc(d)}" ${d===sel?'selected':''}>${esc(L(d))}</option>`).join('')}</optgroup>`).join('');
+const deptOptions=(sel,official)=>(sel&&sel!==OFFICIAL&&!allDepts().includes(sel)?`<option value="${esc(sel)}" selected>${esc(L(sel))}</option>`:'')+(official?`<option value="${OFFICIAL}" ${sel===OFFICIAL?'selected':''}>${L(OFFICIAL)}</option>`:'')+data.deptGroups.map(g=>`<optgroup label="${esc(L(g.name))}">${g.items.map(d=>`<option value="${esc(d)}" ${d===sel?'selected':''}>${esc(L(d))}</option>`).join('')}</optgroup>`).join('');
 const formEnd=(delAct,id)=>`<div class="actions">${id?`<button type="button" class="danger" data-act="${delAct}" data-id="${id}">${tr('del')}</button>`:''}<span class="grow"></span><button type="button" data-act="close">${tr('cancel')}</button><button class="primary">${tr('save')}</button></div>`;
 
 function openTask(id,preset={}){
