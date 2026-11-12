@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f6f5f1;--panel:#fff;--ink:#1d2330;--muted:#6b7280;--line:#e5e3dc;--accent:#2f4b7c;--accent-ink:#fff;--gold:#b8860b;--soft:#f0eee8;--late:#c0392b;
+:root{--bg:#ffffff;--panel:#fff;--ink:#1d2330;--muted:#6b7280;--line:#e5e3dc;--accent:#2f4b7c;--accent-ink:#fff;--gold:#b8860b;--soft:#f0eee8;--late:#c0392b;
 --todo:#8a94a6;--doing:#2563eb;--done:#16a34a;--rej:#dc2626;--later:#a16207}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--panel:#1c2028;--ink:#e8eaee;--muted:#9aa3b2;--line:#2c323d;--accent:#7aa2e3;--accent-ink:#0f1420;--soft:#232833;--gold:#e0b33a}}
 :root[data-theme="dark"]{--bg:#14171d;--panel:#1c2028;--ink:#e8eaee;--muted:#9aa3b2;--line:#2c323d;--accent:#7aa2e3;--accent-ink:#0f1420;--soft:#232833;--gold:#e0b33a}
@@ -194,6 +194,12 @@ form input:not([type=checkbox]):not([type=file]),form select,form textarea{borde
 textarea{min-height:70px;resize:vertical}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
 label.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:13px;margin:0}
+.relbox{margin-bottom:10px}
+.relbox>summary{cursor:pointer;font-size:12px;color:var(--muted);list-style:none;padding:4px 0;display:flex;align-items:center;gap:6px}
+.relbox>summary::-webkit-details-marker{display:none}
+.relbox>summary::before{content:'▸';font-size:11px}
+.relbox[open]>summary::before{content:'▾'}
+.relbox[open]>summary{margin-bottom:6px}
 .rel{max-height:160px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .actions{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
 .help{font-size:13px;color:var(--muted);background:var(--soft);padding:10px 12px;border-radius:8px;margin:0 0 12px}
@@ -1019,8 +1025,8 @@ function openTask(id,preset={}){
     <div class="row2"><label>${tr('start')}<input type="date" name="start" value="${t.start}"></label><label>${tr('end')}<input type="date" name="end" value="${t.end}"></label></div>
     <div class="row2"><label>${tr('project')}<select name="project"><option value="">${tr('none')}</option>${data.projects.map(p=>`<option value="${p.id}" ${p.id===t.project?'selected':''}>${esc(tx(p,'name'))}</option>`).join('')}</select></label>
       <label>${tr('recMonth')}<input type="month" name="month" value="${t.month}"></label></div>
-    <label>${tr('relLabel')}</label>
-    <div class="rel">${others.map(o=>`<label class="chk"><input type="checkbox" name="rel" value="${o.id}" ${t.related.includes(o.id)?'checked':''}><span class="dtag">${esc(L(o.dept))}</span>${esc(tx(o,'title'))}</label>`).join('')||`<span class="empty">${tr('noOthers')}</span>`}</div>
+    <details class="relbox"><summary>${tr('relLabel')}<span class="badge" id="relCount" ${t.related.length?'':'hidden'}>${t.related.length}</span></summary>
+    <div class="rel">${others.map(o=>`<label class="chk"><input type="checkbox" name="rel" value="${o.id}" ${t.related.includes(o.id)?'checked':''}><span class="dtag">${esc(L(o.dept))}</span>${esc(tx(o,'title'))}</label>`).join('')||`<span class="empty">${tr('noOthers')}</span>`}</div></details>
     ${bi('note',t,tr('memo'),true)}
     ${t.updBy?`<p class="note-s" style="margin:0">${esc(tr('lastEdit',t.updBy,fmtStamp(t.updAt)))}</p>`:''}
     ${formEnd('delTask',id)}</form>`,fd=>{
@@ -1165,6 +1171,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.matches('select.prio')){const p=data.projects.find(x=>x.id===t.dataset.id);if(p){p.priority=t.value;p.order=Date.now();save()}}
+  else if(t.name==='rel'&&t.closest('.relbox')){const n=t.closest('.relbox').querySelectorAll('input[name=rel]:checked').length,c=$('#relCount');c.textContent=n;c.hidden=!n}
   else if(t.matches('select.st')){const task=data.tasks.find(x=>x.id===t.dataset.id);if(task){task.status=t.value;save()}}
   else if(t.id==='autotr'){autoTr=t.checked;lsSet('wm_autotr',autoTr);trStop=false;render()}
   else if(t.matches('input[data-k]')){ui[t.dataset.k]=t.checked;renderCalendar()}
