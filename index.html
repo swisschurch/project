@@ -298,7 +298,7 @@ const EN_MAP={
   '24부서':'24 Departments','네 생물':'Four Living Creatures','공통':'Common',
   '총무부':'General Affairs','신학부':'Theology','전도부':'Evangelism','기획부':'Planning','재정부':'Finance',
   '문화부':'Culture','찬양부':'Worship','국내선교부':'Domestic Mission','내무부':'Internal Affairs',
-  'HWPL':'HWPL','제네바':'Geneva','장년회':"Men's Assoc.",'부녀회':"Women's Assoc.",'청년회':'Youth Assoc.','일반':'General'
+  'HWPL':'HWPL','제네바':'Geneva','장년회':"Men's Assoc.",'부녀회':"Women's Assoc.",'청년회':'Youth Assoc.','일반':'General','이탈리아':'Italy','헝가리':'Hungary'
 };
 const L=v=>lang==='en'?(EN_MAP[v]||v):v;   // 상태·우선순위·부서명 표시용
 const mName=m=>lang==='en'?MONTHS_EN[m-1]:`${m}월`;
@@ -478,11 +478,22 @@ function biRead(fd,o,f){
 const DEFAULT_DEPTS=[
   {name:'24부서',items:['총무부','신학부','전도부','기획부','재정부','문화부','찬양부','국내선교부','내무부','HWPL','제네바']},
   {name:'네 생물',items:['장년회','부녀회','청년회']},
-  {name:'공통',items:['일반']}
+  {name:'공통',items:['일반','이탈리아','헝가리']}
 ];
 function emptyData(){return {deptGroups:JSON.parse(JSON.stringify(DEFAULT_DEPTS)),slogans:{},slogansEn:{},projects:[],tasks:[],events:[]}}
+// 저장된 부서 목록에 새로 추가된 기본 부서가 빠져 있으면 채워 넣음
+function withDefaultDepts(groups){
+  const g=JSON.parse(JSON.stringify(groups&&groups.length?groups:DEFAULT_DEPTS));
+  DEFAULT_DEPTS.forEach(dg=>{
+    let t=g.find(x=>x.name===dg.name);
+    if(!t){t={name:dg.name,items:[]};g.push(t)}
+    dg.items.forEach(it=>{if(!g.some(x=>x.items.includes(it)))t.items.push(it)});
+  });
+  return g;
+}
 function migrate(d){
   d=Object.assign(emptyData(),d||{});
+  d.deptGroups=withDefaultDepts(d.deptGroups);
   d.projects.forEach((p,i)=>{if(!PRIOS.includes(p.priority))p.priority='보통';if(typeof p.order!=='number')p.order=i});
   d.tasks.forEach((t,i)=>{if(typeof t.seq!=='number')t.seq=i;t.related=t.related||[]});
   d.slogans=d.slogans||{};d.slogansEn=d.slogansEn||{};
@@ -576,7 +587,7 @@ const Store={
     },e=>this.fail(e))));
     this.unsub.push(db.collection('meta').doc('main').onSnapshot(s=>{
       if(s.exists){const v=s.data();
-        data.deptGroups=v.deptGroups&&v.deptGroups.length?v.deptGroups:data.deptGroups;
+        data.deptGroups=withDefaultDepts(v.deptGroups);
         data.slogans=v.slogans||{};data.slogansEn=v.slogansEn||{};
         this.metaSnap=stable(this.metaOf());}
       this.ready.meta=true;this.changed();
