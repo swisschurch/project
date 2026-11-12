@@ -132,6 +132,17 @@ body.dragging,body.dragging *{cursor:grabbing!important}
 .proj-h .grow{flex:1}
 .proj-title{margin:10px 0 0;font-size:17px;line-height:1.35;cursor:pointer;border-radius:6px}
 .proj-title.u{margin:0}
+.pdepts{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.proj.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 45%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+.dchips{display:flex;flex-direction:column;gap:8px;margin:2px 0 12px;padding:10px;border:1px solid var(--line);border-radius:8px}
+.dc-g small{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+.dc-g>div{display:flex;flex-wrap:wrap;gap:6px}
+form label.dchip{display:inline-flex;flex-direction:row;margin:0;cursor:pointer}
+.dchip input{position:absolute;opacity:0;pointer-events:none}
+.dchip span{padding:3px 10px;border:1px solid var(--line);border-radius:20px;font-size:13px;color:var(--ink);user-select:none}
+.dchip input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.dchip input:focus-visible+span{outline:2px solid var(--accent);outline-offset:1px}
 .proj-title:hover{color:var(--accent)}
 .proj-title i{font-style:normal;font-size:11px;color:var(--muted);margin-left:6px;vertical-align:2px}
 .proj .sub-h{margin-top:12px}
@@ -342,7 +353,7 @@ const I18N={
   unassigned:'프로젝트 미지정',unassignedHint:'업무 편집에서 프로젝트를 지정하면 해당 프로젝트로 옮겨집니다.',doneOf:(d,n,p)=>`${d}/${n} 완료 · ${p}%`,count:n=>`${n}건`,
   current:'현재 진행',noCurrent:'진행 중인 업무 없음',later:'차후 할 일',done:'완료',addTaskLine:'＋ 업무 추가',
   addProject:'＋ 프로젝트',addTask:'＋ 업무',search:'업무 검색',carry:'미완료 다음 달로 이월',carryTip:'시작 전·진행 중·차후 업무를 다음 달로 복사합니다',
-  infoTip:'눌러서 설명·진행률 보기',dragTip:'끌어서 순서 바꾸기',starHint:'★ 표시한 프로젝트가 모입니다. 프로젝트 이름 옆 ★을 눌러 추가·해제하세요.',starEmpty:'아직 중요 표시한 항목이 없습니다.',noProjects:'표시할 프로젝트가 없습니다.',
+  infoTip:'눌러서 설명·진행률 보기',relDepts:'관련 부서',dragTip:'끌어서 순서 바꾸기',starHint:'★ 표시한 프로젝트가 모입니다. 프로젝트 이름 옆 ★을 눌러 추가·해제하세요.',starEmpty:'아직 중요 표시한 항목이 없습니다.',noProjects:'표시할 프로젝트가 없습니다.',
   addEvent:'＋ 일정 추가',showOfficial:'교회 공식 일정',showDeptEv:'부서 일정',showTasks:'업무 기간',allDeptsShort:'모든 부서',calNote:x=>`${x} 표시 중 · 업무 막대 색 = 프로젝트`,
   weekdays:['일','월','화','수','목','금','토'],agenda:m=>`${m} 일정 목록`,noEvents:'등록된 일정이 없습니다. 날짜 칸을 눌러 추가하세요.',
   del:'삭제',cancel:'취소',save:'저장',close:'닫기',
@@ -384,7 +395,7 @@ const I18N={
   unassigned:'No project',unassignedHint:'Assign a project in the task editor to move a task there.',doneOf:(d,n,p)=>`${d}/${n} done · ${p}%`,count:n=>`${n} task${n===1?'':'s'}`,
   current:'Current',noCurrent:'No active tasks',later:'Later',done:'Done',addTaskLine:'＋ Add task',
   addProject:'＋ Project',addTask:'＋ Task',search:'Search tasks',carry:'Carry over to next month',carryTip:'Copies To do, In progress and Later tasks into next month',
-  infoTip:'Click to show description and progress',dragTip:'Drag to reorder',starHint:'Starred projects appear here. Click ★ next to a project name to add or remove it.',starEmpty:'Nothing starred yet.',noProjects:'No projects to show.',
+  infoTip:'Click to show description and progress',relDepts:'Departments',dragTip:'Drag to reorder',starHint:'Starred projects appear here. Click ★ next to a project name to add or remove it.',starEmpty:'Nothing starred yet.',noProjects:'No projects to show.',
   addEvent:'＋ Add event',showOfficial:'Church official',showDeptEv:'Department events',showTasks:'Task periods',allDeptsShort:'all departments',calNote:x=>`Showing ${x} · bar color = project`,
   weekdays:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],agenda:m=>`${m} events`,noEvents:'No events yet. Click a date to add one.',
   del:'Delete',cancel:'Cancel',save:'Save',close:'Close',
@@ -866,7 +877,7 @@ function projBlock(p,ts){
   const cur=ts.filter(t=>['시작 전','진행 중','반려'].includes(t.status)&&(ui.stf==='전체'||t.status===ui.stf));
   const later=ts.filter(t=>t.status==='차후'),done=ts.filter(t=>t.status==='완료');
   const counted=ts.filter(t=>t.status!=='반려'),pct=counted.length?Math.round(done.length/counted.length*100):0;
-  const depts=allDepts().filter(d=>ts.some(t=>t.dept===d));
+  const depts=allDepts().filter(d=>ts.some(t=>t.dept===d)&&!(p&&(p.depts||[]).includes(d)));
   const folded=ui.fold[key],info=!!(ui.info||{})[key];
   let head;
   if(p){
@@ -879,6 +890,7 @@ function projBlock(p,ts){
       <button class="mini" data-act="pfold" data-k="${key}">${folded?tr('unfold'):tr('fold')}</button>
     </div>
     <h3 class="proj-title" data-act="pinfo" data-k="${key}" title="${tr('infoTip')}">${esc(tx(p,'name'))}<i>${info?'▴':'▾'}</i></h3>
+    ${(p.depts||[]).length?`<div class="pdepts">${p.depts.map(d=>`<span class="dtag">${esc(L(d))}</span>`).join('')}</div>`:''}
     ${info&&tx(p,'desc')?`<p class="proj-desc">${esc(tx(p,'desc'))}</p>`:''}`;
   }else{
     head=`<div class="proj-h"><h3 class="proj-title u" data-act="pinfo" data-k="none" title="${tr('infoTip')}">${tr('unassigned')}<i>${info?'▴':'▾'}</i></h3><span class="grow"></span><button class="mini" data-act="pfold" data-k="none">${folded?tr('unfold'):tr('fold')}</button></div>
@@ -960,7 +972,7 @@ function renderProjects(){
   const curAll=list.filter(t=>['시작 전','진행 중','반려'].includes(t.status));
   const filtered=ui.dept!=='전체'||q;
   const chip=s=>`<button class="${ui.stf===s?'on':''}" data-act="stf" data-s="${s}">${L(s)} ${s==='전체'?curAll.length:curAll.filter(t=>t.status===s).length}</button>`;
-  let blocks=sortedProjects().map(p=>{const ts=list.filter(t=>t.project===p.id);return (filtered&&!ts.length&&!(ui.dept===STAR&&p.starred&&!q))?'':projBlock(p,ts)}).join('');
+  let blocks=sortedProjects().map(p=>{const ts=list.filter(t=>t.project===p.id);return (filtered&&!ts.length&&!q&&!(ui.dept===STAR&&p.starred)&&!(p.depts||[]).includes(ui.dept))||(q&&!ts.length)?'':projBlock(p,ts)}).join('');
   const loose=ui.dept===STAR?[]:list.filter(t=>!t.project||!data.projects.some(p=>p.id===t.project));
   if(loose.length)blocks+=projBlock(null,loose);
   $('#view').innerHTML=`
@@ -979,6 +991,7 @@ function renderProjects(){
     ${ui.dept===STAR?`<p class="star-hint">${tr('starHint')}</p>`:''}
     ${blocks?`<div class="pboard">${blocks}</div>`:`<p class="empty">${ui.dept===STAR?tr('starEmpty'):tr('noProjects')}</p>`}`;
   initDrag();
+  if(ui.flash){const id=ui.flash;ui.flash=null;requestAnimationFrame(()=>{const el=document.querySelector(`.proj[data-pid="${id}"]`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('flash')}})}
 }
 
 function renderCalendar(){
@@ -1073,16 +1086,19 @@ function openEvent(id,preset={}){
     });
 }
 function openProject(id){
-  const p=id?data.projects.find(x=>x.id===id):{id:'',name:'',color:'#2f4b7c',desc:'',priority:'보통',order:Date.now()};
+  const p=id?data.projects.find(x=>x.id===id):{id:'',name:'',color:'#2f4b7c',desc:'',priority:'보통',order:Date.now(),depts:allDepts().includes(ui.dept)?[ui.dept]:[]};
+  const sel=p.depts||[];
   dlg(`<h3>${id?tr('editProject'):tr('newProject')}</h3><form>
     ${bi('name',p,tr('projectName'))}
     ${bi('desc',p,tr('desc'),true)}
     <div class="row2"><label>${tr('priority')}<select name="priority">${prioOpts(p.priority)}</select></label>
     <label>${tr('color')}<input type="color" name="color" value="${p.color}" style="height:40px;padding:2px"></label></div>
+    <label>${tr('relDepts')}</label>
+    <div class="dchips">${data.deptGroups.map(g=>`<div class="dc-g"><small>${esc(L(g.name))}</small><div>${g.items.map(d=>`<label class="dchip"><input type="checkbox" name="pdept" value="${esc(d)}" ${sel.includes(d)?'checked':''}><span>${esc(L(d))}</span></label>`).join('')}</div></div>`).join('')}</div>
     ${formEnd('delProject',id)}</form>`,fd=>{
-      const v={...biRead(fd,p,'name'),...biRead(fd,p,'desc'),color:fd.get('color'),priority:fd.get('priority')};
+      const v={...biRead(fd,p,'name'),...biRead(fd,p,'desc'),color:fd.get('color'),priority:fd.get('priority'),depts:fd.getAll('pdept')};
       if(!v.name&&!v.name_en){alert(tr('needName'));return false}
-      if(id){if(v.priority!==p.priority)p.order=Date.now();Object.assign(p,v)}else data.projects.push({id:uid(),order:Date.now(),...v});
+      if(id){if(v.priority!==p.priority)p.order=Date.now();Object.assign(p,v)}else{const nid=uid();data.projects.push({id:nid,order:Date.now(),...v});ui.flash=nid;ui.fold[nid]=false}
     });
 }
 function openSlogan(){
@@ -1165,7 +1181,9 @@ document.addEventListener('click',e=>{
     case 'pfold':ui.fold[el.dataset.k]=!ui.fold[el.dataset.k];renderProjects();break;
     case 'pmove':{const p=data.projects.find(x=>x.id===id),same=sortedProjects().filter(x=>x.priority===p.priority),i=same.indexOf(p),o=same[i+Number(el.dataset.dir)];if(o){same.forEach((x,k)=>x.order=k);[p.order,o.order]=[o.order,p.order];save()}break}
     case 'slogan':openSlogan();break;
-    case 'addTask':openTask(null,el.dataset.project?{project:el.dataset.project}:{});break;
+    case 'addTask':{const pr=data.projects.find(x=>x.id===el.dataset.project),pre={};
+      if(pr){pre.project=pr.id;if(!allDepts().includes(ui.dept)&&(pr.depts||[]).length)pre.dept=pr.depts[0]}
+      openTask(null,pre);break}
     case 'editTask':openTask(id);break;
     case 'delTask':delTask(id);break;
     case 'addEvent':openEvent(null,{date:el.dataset.date});break;
