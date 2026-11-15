@@ -157,6 +157,8 @@ body.dragging,body.dragging *{cursor:grabbing!important}
 .mn-content{white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.65;max-height:55vh;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--bg)}
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:10px;font-size:14px;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.2);transition:opacity .4s;max-width:calc(100vw - 32px);text-align:center}
 .toast.out{opacity:0}
+.mn-tasks{margin-top:14px}
+.mn-tasks .task{padding:8px 4px}
 .mn-sec{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:10px}
 .mn-sec-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}
 .mn-linked{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -394,7 +396,7 @@ const I18N={
   unassigned:'프로젝트 미지정',unassignedHint:'업무 편집에서 프로젝트를 지정하면 해당 프로젝트로 옮겨집니다.',doneOf:(d,n,p)=>`${d}/${n} 완료 · ${p}%`,count:n=>`${n}건`,
   current:'현재 진행',noCurrent:'진행 중인 업무 없음',later:'차후 할 일',done:'완료',addTaskLine:'＋ 업무 추가',
   addProject:'＋ 프로젝트',addTask:'＋ 업무',search:'업무 검색',carry:'미완료 다음 달로 이월',carryTip:'시작 전·진행 중·차후 업무를 다음 달로 복사합니다',
-  infoTip:'눌러서 설명·진행률 보기',noDone:'완료된 업무 없음',minutes:'회의록',projDone:'모두 완료',deptProjects:d=>`${d} 프로젝트`,share:'공유',shareTip:'바로가기 링크 공유 (회원만 열 수 있음)',shareCopied:'링크를 복사했습니다. 메신저에 붙여넣어 보내세요.',shareManual:'아래 링크를 복사하세요',linkMissing:'링크의 항목을 찾을 수 없습니다. 삭제되었을 수 있습니다.',project:'프로젝트',taskWord:'업무',mnNewProjects:'프로젝트 생성',mnNewTasks:'업무 생성',mnAddP:'＋ 프로젝트 생성',mnAddT:'＋ 업무 생성',mnUnlink:'연결 해제',mnNewTag:'새 프로젝트:',mnMade:'이 회의에서 나온 것',mnMadeMsg:(p,t)=>`프로젝트 ${p}개, 업무 ${t}개를 만들어 보드에 추가했습니다.`,minutesN:n=>`회의록 ${n}`,mnNew:'＋ 회의록',mnNew2:'새 회의록',mnEdit:'회의록 편집',mnSearch:'회의록 검색',
+  infoTip:'눌러서 설명·진행률 보기',noDone:'완료된 업무 없음',minutes:'회의록',mnMadeP:'이 회의에서 나온 프로젝트',mnMadeT:'이 회의에서 나온 업무',projDone:'모두 완료',deptProjects:d=>`${d} 프로젝트`,share:'공유',shareTip:'바로가기 링크 공유 (회원만 열 수 있음)',shareCopied:'링크를 복사했습니다. 메신저에 붙여넣어 보내세요.',shareManual:'아래 링크를 복사하세요',linkMissing:'링크의 항목을 찾을 수 없습니다. 삭제되었을 수 있습니다.',project:'프로젝트',taskWord:'업무',mnNewProjects:'프로젝트 생성',mnNewTasks:'업무 생성',mnAddP:'＋ 프로젝트 생성',mnAddT:'＋ 업무 생성',mnUnlink:'연결 해제',mnNewTag:'새 프로젝트:',mnMade:'이 회의에서 나온 것',mnMadeMsg:(p,t)=>`프로젝트 ${p}개, 업무 ${t}개를 만들어 보드에 추가했습니다.`,minutesN:n=>`회의록 ${n}`,mnNew:'＋ 회의록',mnNew2:'새 회의록',mnEdit:'회의록 편집',mnSearch:'회의록 검색',
   mnEmpty:'아직 회의록이 없습니다. ＋ 회의록으로 추가하세요.',mnTitle:'제목',mnAtt:'참석자',mnAttPh:'예: 이예진, 김회원',mnUpload:'파일에서 불러오기',mnUpHint:'Word(.docx) · PDF · 텍스트 파일의 내용을 아래 칸에 넣습니다',
   mnContent:'내용',mnContentPh:'회의 내용을 붙여넣거나, 위에서 파일을 불러오세요',mnLink:'원본 파일 링크 (선택)',mnProjects:'연결할 프로젝트',mnTasks:'연결할 업무',mnTaskN:n=>`업무 ${n}`,
   mnOpenLink:'원본 파일 열기',mnNoContent:'내용 없음',mnConfirmDel:'이 회의록을 삭제할까요?',mnReading:'읽는 중…',mnReplace:'지금 적힌 내용을 파일 내용으로 바꿀까요?',
@@ -442,7 +444,7 @@ const I18N={
   unassigned:'No project',unassignedHint:'Assign a project in the task editor to move a task there.',doneOf:(d,n,p)=>`${d}/${n} done · ${p}%`,count:n=>`${n} task${n===1?'':'s'}`,
   current:'Current',noCurrent:'No active tasks',later:'Later',done:'Done',addTaskLine:'＋ Add task',
   addProject:'＋ Project',addTask:'＋ Task',search:'Search tasks',carry:'Carry over to next month',carryTip:'Copies To do, In progress and Later tasks into next month',
-  infoTip:'Click to show description and progress',noDone:'No completed tasks',minutes:'Minutes',projDone:'All done',deptProjects:d=>`${d} projects`,share:'Share',shareTip:'Share a direct link (members only)',shareCopied:'Link copied. Paste it into your messenger.',shareManual:'Copy this link',linkMissing:'The linked item was not found. It may have been deleted.',project:'Project',taskWord:'Task',mnNewProjects:'Create projects',mnNewTasks:'Create tasks',mnAddP:'＋ Create project',mnAddT:'＋ Create task',mnUnlink:'Unlink',mnNewTag:'New:',mnMade:'From this meeting',mnMadeMsg:(p,t)=>`Created ${p} project${p===1?'':'s'} and ${t} task${t===1?'':'s'} on the board.`,minutesN:n=>`${n} minute${n===1?'':'s'}`,mnNew:'＋ Minutes',mnNew2:'New minutes',mnEdit:'Edit minutes',mnSearch:'Search minutes',
+  infoTip:'Click to show description and progress',noDone:'No completed tasks',minutes:'Minutes',mnMadeP:'Projects from this meeting',mnMadeT:'Tasks from this meeting',projDone:'All done',deptProjects:d=>`${d} projects`,share:'Share',shareTip:'Share a direct link (members only)',shareCopied:'Link copied. Paste it into your messenger.',shareManual:'Copy this link',linkMissing:'The linked item was not found. It may have been deleted.',project:'Project',taskWord:'Task',mnNewProjects:'Create projects',mnNewTasks:'Create tasks',mnAddP:'＋ Create project',mnAddT:'＋ Create task',mnUnlink:'Unlink',mnNewTag:'New:',mnMade:'From this meeting',mnMadeMsg:(p,t)=>`Created ${p} project${p===1?'':'s'} and ${t} task${t===1?'':'s'} on the board.`,minutesN:n=>`${n} minute${n===1?'':'s'}`,mnNew:'＋ Minutes',mnNew2:'New minutes',mnEdit:'Edit minutes',mnSearch:'Search minutes',
   mnEmpty:'No meeting minutes yet. Add one with ＋ Minutes.',mnTitle:'Title',mnAtt:'Attendees',mnAttPh:'e.g. Yejin, Kim',mnUpload:'Load from file',mnUpHint:'Puts the text of a Word (.docx), PDF or text file below',
   mnContent:'Content',mnContentPh:'Paste the minutes here, or load a file above',mnLink:'Link to the original file (optional)',mnProjects:'Link to projects',mnTasks:'Link to tasks',mnTaskN:n=>`${n} task${n===1?'':'s'}`,
   mnOpenLink:'Open original file',mnNoContent:'No content',mnConfirmDel:'Delete these minutes?',mnReading:'Reading…',mnReplace:'Replace the current text with the file content?',
@@ -1178,9 +1180,14 @@ function openMinuteView(id){
   const ps=mnProjects(m),ts=mnTasks(m);
   D.innerHTML=`<h3>${esc(tx(m,'title'))}</h3>
     <div class="t-meta" style="margin:-6px 0 10px">${m.date?`<span>${esc(m.date)}</span>`:''}${mDepts(m).map(d=>`<span class="dtag">${esc(L(d))}</span>`).join('')}${m.attendees?`<span>${tr('mnAtt')}: ${esc(m.attendees)}</span>`:''}${m.updBy?`<span>${esc(tr('lastEdit',m.updBy,fmtStamp(m.updAt)))}</span>`:''}</div>
-    ${ps.length||ts.length?`<div class="mn-links"><small class="empty">${tr('mnMade')}:</small> ${ps.map(p=>`<button class="ptag" style="--c:${p.color}" data-act="mGoProject" data-id="${p.id}">${esc(tx(p,'name'))}</button>`).join('')}${ts.map(t=>`<button class="lnk" data-act="editTask" data-id="${t.id}">${esc(tx(t,'title'))}</button>`).join('')}</div>`:''}
+    ${ps.length?`<div class="mn-links"><small class="empty">${tr('mnMadeP')}:</small> ${ps.map(p=>`<button class="ptag" style="--c:${p.color}" data-act="mGoProject" data-id="${p.id}">${esc(tx(p,'name'))}</button>`).join('')}</div>`:''}
     ${m.link?`<p class="mn-file"><a href="${esc(m.link)}" target="_blank" rel="noopener noreferrer">${tr('mnOpenLink')} ↗</a></p>`:''}
     <div class="mn-content">${esc(m.content||'')||`<span class="empty">${tr('mnNoContent')}</span>`}</div>
+    ${ts.length?`<div class="mn-tasks"><div class="sub-h">${tr('mnMadeT')} <span class="badge">${ts.length}</span></div>
+      ${bySeq(ts).map(t=>{const pr=data.projects.find(x=>x.id===t.project),per=period(t),late=t.end&&t.end<todayStr()&&!['완료','반려','차후'].includes(t.status);
+        return `<div class="task s-${SCLS[t.status]}" data-id="${t.id}"><div class="t-body" data-act="editTask" data-id="${t.id}"><div class="t-title">${esc(tx(t,'title'))}</div>
+          <div class="t-meta"><span class="dtag">${esc(L(t.dept))}</span>${pr?`<span class="ptag" style="--c:${pr.color}">${esc(tx(pr,'name'))}</span>`:`<span>${tr('unassigned')}</span>`}${per?`<span class="${late?'late':''}">${per}${late?tr('overdue'):''}</span>`:''}</div></div>
+          <select class="st s-${SCLS[t.status]}" data-id="${t.id}" aria-label="${tr('status')}">${statusOpts(t.status)}</select></div>`}).join('')}</div>`:''}
     <div class="actions"><button type="button" class="danger" data-act="mDel" data-id="${m.id}">${tr('del')}</button><button type="button" data-act="share" data-k="m" data-id="${m.id}" title="${tr('shareTip')}">🔗 ${tr('share')}</button><span class="grow"></span><button type="button" data-act="close">${tr('close')}</button><button class="primary" data-act="mEdit" data-id="${m.id}">${tr('edit')}</button></div>`;
   if(!D.open)D.showModal();
 }
@@ -1509,6 +1516,7 @@ document.addEventListener('change',e=>{
   }
   else if(t.name==='rel'&&t.closest('.relbox')){const n=t.closest('.relbox').querySelectorAll('input[name=rel]:checked').length,c=$('#relCount');c.textContent=n;c.hidden=!n}
   else if(t.name==='nt_dept')refreshProjOpts();
+  else if(t.matches('select.st')&&t.closest('.mn-tasks')){const task=data.tasks.find(x=>x.id===t.dataset.id);if(task){task.status=t.value;t.className='st s-'+SCLS[t.value];t.closest('.task').className='task s-'+SCLS[t.value];save()}}
   else if(t.matches('select.st')){const task=data.tasks.find(x=>x.id===t.dataset.id);if(task){task.status=t.value;save()}}
   else if(t.id==='autotr'){autoTr=t.checked;lsSet('wm_autotr',autoTr);trStop=false;render()}
   else if(t.matches('input[data-k]')){ui[t.dataset.k]=t.checked;renderCalendar()}
