@@ -175,7 +175,8 @@ body.dragging,body.dragging *{cursor:grabbing!important}
 .mn-up{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 textarea.mn-ta{min-height:220px;font-size:14px;line-height:1.6}
 .rel>label[hidden]{display:none}
-dialog:has(.mn-ta),dialog:has(.mn-content){width:min(760px,calc(100vw - 32px))}
+dialog:has(.mn-ta){width:min(860px,calc(100vw - 32px))}
+dialog:has(.mn-content){width:min(1080px,calc(100vw - 32px))}
 .proj.flash{animation:flash 1.6s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 45%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
 .dchips{display:flex;flex-direction:column;gap:8px;margin:2px 0 12px;padding:10px;border:1px solid var(--line);border-radius:8px}
@@ -1343,7 +1344,7 @@ function openTask(id,preset={}){
     ${bi('note',t,tr('memo'),true)}
     ${id&&minutesFor('tasks',id).length?`<div class="mn-links" style="margin:0 0 10px"><small class="empty">${tr('minutes')}:</small> ${minutesFor('tasks',id).map(m=>`<button type="button" class="lnk" data-act="mView" data-id="${m.id}">✎ ${esc(tx(m,'title'))}</button>`).join('')}</div>`:''}
     ${t.updBy?`<p class="note-s" style="margin:0">${esc(tr('lastEdit',t.updBy,fmtStamp(t.updAt)))}</p>`:''}
-    ${formEnd('delTask',id,'t')}</form>`,fd=>{
+    ${formEnd('delTask',id)}</form>`,fd=>{
       const start=fd.get('start'),end=fd.get('end');
       if(start&&end&&end<start){alert(tr('badDates'));return false}
       const v={...biRead(fd,t,'title'),...biRead(fd,t,'note'),dept:fd.get('dept'),status:fd.get('status'),start,end,project:fd.get('project'),month:fd.get('month')||ui.month,related:fd.getAll('rel')};
